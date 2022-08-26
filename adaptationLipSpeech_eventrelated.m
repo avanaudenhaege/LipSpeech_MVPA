@@ -100,7 +100,7 @@ end
 
 orderCondVector = [firstCondition, secondCondition];
 
-% add supporting functions to the path
+try
 addpath(genpath('./supporting_functions'));
 
 %% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION %%
@@ -748,5 +748,11 @@ disp(strcat('Experiment duration: ', num2str((expEnd - expStart) / 60), ' \n Pre
 KbQueue('flush');
 KbQueue('wait', 'space');
 ListenChar(0);
-ShowCursor;
-sca;
+    ShowCursor;
+    sca;
+
+catch
+    ListenChar(0);
+    ShowCursor;
+    sca;
+end
