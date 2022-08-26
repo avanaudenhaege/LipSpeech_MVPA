@@ -42,11 +42,13 @@
 % This is to force the participant to attend each syllable that is presented
 % (consonant AND vowel).
 
-expName = 'LipSpeechMVPA';
+clear;
+sca;
+clc;
 
 % PsychDebugWindowConfiguration;
 
-%% VARIABLE SETTINGS %%
+expName = 'LipSpeechMVPA';
 
 % time stamp as the experiment starts
 expStart = GetSecs;
@@ -101,18 +103,21 @@ end
 orderCondVector = [firstCondition, secondCondition];
 
 try
-addpath(genpath('./supporting_functions'));
 
-%% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION %%
+    PsychDebugWindowConfiguration;
 
 % basic setup checking
-AssertOpenGL;
 
 % This sets a PTB preference to possibly skip some timing tests: a value
 % of 0 runs these tests, and a value of 1 inhibits them. This
 % should always be set to 0 for actual experiments
 Screen('Preference', 'SkipSyncTests', 1);
 % Screen('Preference', 'SkipSyncTests', 0);
+
+    %% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION %%
+
+    % basic setup checking
+    AssertOpenGL;
 
 % Screen('Preference', 'ConserveVRAM', 4096); %probably not needed if not
 % using Gstreamer
