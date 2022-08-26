@@ -46,7 +46,9 @@ clear;
 sca;
 clc;
 
-% PsychDebugWindowConfiguration;
+% add supporting functions to the path
+this_directory = fileparts(mfilename('fullpath'));
+addpath(genpath(fullfile(this_directory, 'supporting_functions')));
 
 expName = 'LipSpeechMVPA';
 
@@ -212,77 +214,77 @@ for a = 1:length(actor)
     end
 end
 
-% Build one structure per "video"
+    % Build one structure per "video"
 
-framePath = '/stim/';
+    stimuli_path = fullfile(this_directory, 'stimuli');
 
-fprintf('Preparing frame structures for each video \n'); % feedback in command window
+    fprintf('Preparing frame structures for each video \n'); % feedback in command window
 
-S1paStruct = struct;
-S1paStruct = buildFramesStruct(Win, S1paStruct, nFrames, frameDuration, allFrameNames(:, 1), framePath);
-S1piStruct = struct;
-S1piStruct = buildFramesStruct(Win, S1piStruct, nFrames, frameDuration, allFrameNames(:, 2), framePath);
-S1peStruct = struct;
-S1peStruct = buildFramesStruct(Win, S1peStruct, nFrames, frameDuration, allFrameNames(:, 3), framePath);
+    S1paStruct = struct;
+    S1paStruct = buildFramesStruct(Win, S1paStruct, nFrames, frameDuration, allFrameNames(:, 1), stimuli_path);
+    S1piStruct = struct;
+    S1piStruct = buildFramesStruct(Win, S1piStruct, nFrames, frameDuration, allFrameNames(:, 2), stimuli_path);
+    S1peStruct = struct;
+    S1peStruct = buildFramesStruct(Win, S1peStruct, nFrames, frameDuration, allFrameNames(:, 3), stimuli_path);
 
-S1faStruct = struct;
-S1faStruct = buildFramesStruct(Win, S1faStruct, nFrames, frameDuration, allFrameNames(:, 4), framePath);
-S1fiStruct = struct;
-S1fiStruct = buildFramesStruct(Win, S1fiStruct, nFrames, frameDuration, allFrameNames(:, 5), framePath);
-S1feStruct = struct;
-S1feStruct = buildFramesStruct(Win, S1feStruct, nFrames, frameDuration, allFrameNames(:, 6), framePath);
+    S1faStruct = struct;
+    S1faStruct = buildFramesStruct(Win, S1faStruct, nFrames, frameDuration, allFrameNames(:, 4), stimuli_path);
+    S1fiStruct = struct;
+    S1fiStruct = buildFramesStruct(Win, S1fiStruct, nFrames, frameDuration, allFrameNames(:, 5), stimuli_path);
+    S1feStruct = struct;
+    S1feStruct = buildFramesStruct(Win, S1feStruct, nFrames, frameDuration, allFrameNames(:, 6), stimuli_path);
 
-S1laStruct = struct;
-S1laStruct = buildFramesStruct(Win, S1laStruct, nFrames, frameDuration, allFrameNames(:, 7), framePath);
-S1liStruct = struct;
-S1liStruct = buildFramesStruct(Win, S1liStruct, nFrames, frameDuration, allFrameNames(:, 8), framePath);
-S1leStruct = struct;
-S1leStruct = buildFramesStruct(Win, S1leStruct, nFrames, frameDuration, allFrameNames(:, 9), framePath);
+    S1laStruct = struct;
+    S1laStruct = buildFramesStruct(Win, S1laStruct, nFrames, frameDuration, allFrameNames(:, 7), stimuli_path);
+    S1liStruct = struct;
+    S1liStruct = buildFramesStruct(Win, S1liStruct, nFrames, frameDuration, allFrameNames(:, 8), stimuli_path);
+    S1leStruct = struct;
+    S1leStruct = buildFramesStruct(Win, S1leStruct, nFrames, frameDuration, allFrameNames(:, 9), stimuli_path);
 
-S2paStruct = struct;
-S2paStruct = buildFramesStruct(Win, S2paStruct, nFrames, frameDuration, allFrameNames(:, 10), framePath);
-S2piStruct = struct;
-S2piStruct = buildFramesStruct(Win, S2piStruct, nFrames, frameDuration, allFrameNames(:, 11), framePath);
-S2peStruct = struct;
-S2peStruct = buildFramesStruct(Win, S2peStruct, nFrames, frameDuration, allFrameNames(:, 12), framePath);
+    S2paStruct = struct;
+    S2paStruct = buildFramesStruct(Win, S2paStruct, nFrames, frameDuration, allFrameNames(:, 10), stimuli_path);
+    S2piStruct = struct;
+    S2piStruct = buildFramesStruct(Win, S2piStruct, nFrames, frameDuration, allFrameNames(:, 11), stimuli_path);
+    S2peStruct = struct;
+    S2peStruct = buildFramesStruct(Win, S2peStruct, nFrames, frameDuration, allFrameNames(:, 12), stimuli_path);
 
-S2faStruct = struct;
-S2faStruct = buildFramesStruct(Win, S2faStruct, nFrames, frameDuration, allFrameNames(:, 13), framePath);
-S2fiStruct = struct;
-S2fiStruct = buildFramesStruct(Win, S2fiStruct, nFrames, frameDuration, allFrameNames(:, 14), framePath);
-S2feStruct = struct;
-S2feStruct = buildFramesStruct(Win, S2feStruct, nFrames, frameDuration, allFrameNames(:, 15), framePath);
+    S2faStruct = struct;
+    S2faStruct = buildFramesStruct(Win, S2faStruct, nFrames, frameDuration, allFrameNames(:, 13), stimuli_path);
+    S2fiStruct = struct;
+    S2fiStruct = buildFramesStruct(Win, S2fiStruct, nFrames, frameDuration, allFrameNames(:, 14), stimuli_path);
+    S2feStruct = struct;
+    S2feStruct = buildFramesStruct(Win, S2feStruct, nFrames, frameDuration, allFrameNames(:, 15), stimuli_path);
 
-S2laStruct = struct;
-S2laStruct = buildFramesStruct(Win, S2laStruct, nFrames, frameDuration, allFrameNames(:, 16), framePath);
-S2liStruct = struct;
-S2liStruct = buildFramesStruct(Win, S2liStruct, nFrames, frameDuration, allFrameNames(:, 17), framePath);
-S2leStruct = struct;
-S2leStruct = buildFramesStruct(Win, S2leStruct, nFrames, frameDuration, allFrameNames(:, 18), framePath);
+    S2laStruct = struct;
+    S2laStruct = buildFramesStruct(Win, S2laStruct, nFrames, frameDuration, allFrameNames(:, 16), stimuli_path);
+    S2liStruct = struct;
+    S2liStruct = buildFramesStruct(Win, S2liStruct, nFrames, frameDuration, allFrameNames(:, 17), stimuli_path);
+    S2leStruct = struct;
+    S2leStruct = buildFramesStruct(Win, S2leStruct, nFrames, frameDuration, allFrameNames(:, 18), stimuli_path);
 
-S3paStruct = struct;
-S3paStruct = buildFramesStruct(Win, S3paStruct, nFrames, frameDuration, allFrameNames(:, 19), framePath);
-S3piStruct = struct;
-S3piStruct = buildFramesStruct(Win, S3piStruct, nFrames, frameDuration, allFrameNames(:, 20), framePath);
-S3peStruct = struct;
-S3peStruct = buildFramesStruct(Win, S3peStruct, nFrames, frameDuration, allFrameNames(:, 21), framePath);
+    S3paStruct = struct;
+    S3paStruct = buildFramesStruct(Win, S3paStruct, nFrames, frameDuration, allFrameNames(:, 19), stimuli_path);
+    S3piStruct = struct;
+    S3piStruct = buildFramesStruct(Win, S3piStruct, nFrames, frameDuration, allFrameNames(:, 20), stimuli_path);
+    S3peStruct = struct;
+    S3peStruct = buildFramesStruct(Win, S3peStruct, nFrames, frameDuration, allFrameNames(:, 21), stimuli_path);
 
-S3faStruct = struct;
-S3faStruct = buildFramesStruct(Win, S3faStruct, nFrames, frameDuration, allFrameNames(:, 22), framePath);
-S3fiStruct = struct;
-S3fiStruct = buildFramesStruct(Win, S3fiStruct, nFrames, frameDuration, allFrameNames(:, 23), framePath);
-S3feStruct = struct;
-S3feStruct = buildFramesStruct(Win, S3feStruct, nFrames, frameDuration, allFrameNames(:, 24), framePath);
+    S3faStruct = struct;
+    S3faStruct = buildFramesStruct(Win, S3faStruct, nFrames, frameDuration, allFrameNames(:, 22), stimuli_path);
+    S3fiStruct = struct;
+    S3fiStruct = buildFramesStruct(Win, S3fiStruct, nFrames, frameDuration, allFrameNames(:, 23), stimuli_path);
+    S3feStruct = struct;
+    S3feStruct = buildFramesStruct(Win, S3feStruct, nFrames, frameDuration, allFrameNames(:, 24), stimuli_path);
 
-S3laStruct = struct;
-S3laStruct = buildFramesStruct(Win, S3laStruct, nFrames, frameDuration, allFrameNames(:, 25), framePath);
-S3liStruct = struct;
-S3liStruct = buildFramesStruct(Win, S3liStruct, nFrames, frameDuration, allFrameNames(:, 26), framePath);
-S3leStruct = struct;
-S3leStruct = buildFramesStruct(Win, S3leStruct, nFrames, frameDuration, allFrameNames(:, 27), framePath);
+    S3laStruct = struct;
+    S3laStruct = buildFramesStruct(Win, S3laStruct, nFrames, frameDuration, allFrameNames(:, 25), stimuli_path);
+    S3liStruct = struct;
+    S3liStruct = buildFramesStruct(Win, S3liStruct, nFrames, frameDuration, allFrameNames(:, 26), stimuli_path);
+    S3leStruct = struct;
+    S3leStruct = buildFramesStruct(Win, S3leStruct, nFrames, frameDuration, allFrameNames(:, 27), stimuli_path);
 
-% put them all together
-myVidStructArray = {S1paStruct, ...
+    % put them all together
+    myVidStructArray = {S1paStruct, ...
                     S1piStruct, ...
                     S1peStruct, ...
                     S1faStruct, ...
@@ -321,13 +323,13 @@ disp(strcat('Time for preparation : ', num2str(prepEnd - expStart), ' sec'));
 % preallocate
 myExpTrials = struct;
 % for the experiment
-for t = 1:length(stimName)
-    myExpTrials(t).stimulusname = stimName{t};
-    myExpTrials(t).visualstimuli = struct(myVidStructArray{t});
-    [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread([cd '/stim/' myExpTrials(t).stimulusname '.wav']);
-    myExpTrials(t).wavedata = myExpTrials(t).audy';
-    myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
-    myExpTrials(t).syllable = stimSyll(t);
+    for t = 1:length(stimName)
+        myExpTrials(t).stimulusname = stimName{t};
+        myExpTrials(t).visualstimuli = struct(myVidStructArray{t});
+        [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(stimuli_path, [myExpTrials(t).stimulusname '.wav']));
+        myExpTrials(t).wavedata = myExpTrials(t).audy';
+        myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
+        myExpTrials(t).syllable = stimSyll(t);
     myExpTrials(t).actor = stimActors(t);
     myExpTrials(t).trialtype = 0; % col that will be filled with 1 if trial is a target
 end
