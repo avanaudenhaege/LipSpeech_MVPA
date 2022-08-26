@@ -187,7 +187,8 @@ KbName('UnifyKeyNames');
 %% CREATING THE VISUAL STIMULI (videos from png frames) %%
 
 frameNum = (1:nFrames);
-actor = {'S1', 'S2', 'S3'}; % (S1 = AV, S2 = GH, S3 = JB)
+% (S1 = AV, S2 = GH, S3 = JB)
+actor = {'S1', 'S2', 'S3'}; 
 syllable = {'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'};
 
 stimActors = [repmat({'S1'}, 1, 9), repmat({'S2'}, 1, 9), repmat({'S3'}, 1, 9)];
