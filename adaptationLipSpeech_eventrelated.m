@@ -1,7 +1,9 @@
+% (C) Copyright 2022 ALICE VAN AUDENHAEGE
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Stimulation for functional runs of fMRI design  %%%
 %%%   programmer: Federica Falagiarda October 2019   %%%
-%%%   ADAPTED BY ALICE VAN AUDENHAEGE - August 2022    %%%
+%%%   ADAPTED BY ALICE VAN AUDENHAEGE - August 2022  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Once fully run, this script has given a txt output file per block (= per acquisition run)%
@@ -307,7 +309,7 @@ fprintf('Frame structures ready \n'); % fb in command window
 disp(strcat('Time for preparation : ', num2str(prepEnd - expStart), ' sec'));
 %% CREATING AUDITORY STIMULI
 
-%%% pas n�cessaire pour mon design
+%%% pas necessaire pour mon design
 
 %% Read everything into a structure
 % preallocate
@@ -394,7 +396,7 @@ for rep = 1:nReps
     % blocks correspond to modality, so each 'rep' has 2 blocks = 2 acquisition runs
     for block = 1:nBlocks
 
-        DrawFormattedText(Win, 'TACHE\n Appuyez quand une syllabe est répétée deux fois d''affilée', ...
+        DrawFormattedText(Win, 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee', ...
                           'center', 'center', textColor);
         Screen('Flip', Win);
 
@@ -424,7 +426,8 @@ for rep = 1:nReps
         fprintf(fid, ['date:\t' datestr(now) '\n']);
         fprintf(fid, ['Subject:\t' subjNumber '\n']);
         % data header
-        fprintf(fid, 'onset\tduration\ttrial_number\tstim_name\tblock\tmodality\trepetition\tactor\tconsonant\tvowel\ttarget\tkeypress_number\tresponsekey\tkeypress_time\n');
+        fprintf(fid, ['onset\tduration\ttrial_number\tstim_name\tblock\tmodality'
+                      '\trepetition\tactor\tconsonant\tvowel\ttarget\tkeypress_number\tresponsekey\tkeypress_time\n']);
         fclose(fid);
 
         % Pseudorandomization made based on syllable vector for the faces
@@ -536,7 +539,8 @@ for rep = 1:nReps
 
         % % %    STEFANIAS BIT OF CODE         %% TRIGGER
         % % %     Screen('TextSize', wPtr, 50);%text size
-        % % %     DrawFormattedText(wPtr, '\n READY TO START \n \n - D�tectez les images r�p�t�es - ', ['center'],['center'],[0 0 0]);
+        % % %     DrawFormattedText(wPtr, '\n READY TO START \n \n - Detectez les images repetees - ',
+        %%        ['center'],['center'],[0 0 0]);
         % % %     Screen('Flip', wPtr);
         % % %
         % % %     waitForTrigger(cfg); %this calls the function from CPP github
@@ -736,7 +740,7 @@ for rep = 1:nReps
 
 end
 
-DrawFormattedText(Win, 'Fin de l''expérience :)\nMERCI !', 'center', 'center', textColor);
+DrawFormattedText(Win, 'Fin de l''experience :)\nMERCI !', 'center', 'center', textColor);
 Screen('Flip', Win);
 expEnd = GetSecs;
 disp(strcat('Experiment duration: ', num2str((expEnd - expStart) / 60), ' \n Press SPACE to end'));
