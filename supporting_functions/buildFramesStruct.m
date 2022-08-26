@@ -1,4 +1,4 @@
-function [structureName] = buildFramesStruct(mainWindow, structureName, nFrames, frameDuration, framesArray, framePath)
+function [structureName] = buildFramesStruct(mainWindow, structureName, nFrames, frameDuration, framesArray, stimuli_path)
 
     % [structureName] = buildFramesStruct(structureName, nFrames, frameDuration, framesArray, framePath)
     % builds a structure with the images/frames of a video %
@@ -12,7 +12,7 @@ function [structureName] = buildFramesStruct(mainWindow, structureName, nFrames,
 
     for i = 1:nFrames
         structureName(i).stimNames = framesArray{i};
-        structureName(i).stimImage = imread([cd framePath char(framesArray{i}) '.png']);
+        structureName(i).stimImage = imread(fullfile(stimuli_path, [char(framesArray{i}) '.png']));
         structureName(i).duration = frameDuration;
         structureName(i).imageTexture = Screen('MakeTexture', mainWindow, structureName(i).stimImage);
     end
