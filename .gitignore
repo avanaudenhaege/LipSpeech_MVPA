@@ -1,11 +1,15 @@
 # General
 .DS_Store
+*.log
+
+# stimuli
 __MACOSX
 tmp.zip
-
 *.wav
 *.png
 
+# data
+*.tsv
 
 ## MATLAB / OCTAVE gitignore template
 
