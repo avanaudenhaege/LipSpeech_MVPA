@@ -153,14 +153,13 @@ frameDuration = 1 / videoFrameRate - interFrameInterval / 6;
 
 % get width and height of the screen
 [widthWin, heightWin] = Screen('WindowSize', Win);
-widthDis = Screen('DisplaySize', max(screenVector)); % size in mm of the screen
-Priority(MaxPriority(Win)); %%% ?????%%%%%%
+    widthDis = Screen('DisplaySize', max(screenVector)); % size in mm of the screen
+    Priority(MaxPriority(Win)); %%% ?????%%%%%%
 
-% to overcome the well-known randomisation problem
-RandStream.setGlobalStream (RandStream('mt19937ar', 'seed', sum(100 * clock))); %%% ?????%%%%%%
+    setUpRand();
 
-% hide mouse cursor
-% HideCursor(Win);
+    % hide mouse cursor
+    % HideCursor(Win);
 
 % Listening enabled and any output of keypresses to Matlabs windows is
 % suppressed (see ref. page for ListenChar)
