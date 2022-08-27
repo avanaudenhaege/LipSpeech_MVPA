@@ -1,12 +1,15 @@
 # General
 .DS_Store
 *.log
+.vscode
 
 # stimuli
 __MACOSX
 tmp.zip
 *.wav
 *.png
+*.mat
+*.zip
 
 # data
 *.tsv

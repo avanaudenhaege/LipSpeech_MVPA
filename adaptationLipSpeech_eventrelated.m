@@ -46,9 +46,11 @@ clear;
 sca;
 clc;
 
+cfg = configuration();
+
 % add supporting functions to the path
-this_directory = fileparts(mfilename('fullpath'));
-addpath(genpath(fullfile(this_directory, 'supporting_functions')));
+addpath(genpath(fullfile(cfg.rootDir, 'supporting_functions')));
+addpath(fullfile(cfg.rootDir, 'lib', 'bids-matlab'));
 
 expName = 'LipSpeechMVPA';
 
@@ -108,6 +110,33 @@ end
 
 orderCondVector = [firstCondition, secondCondition];
 
+%% ADD TARGET TRIALS
+% vector with # of blocks per condition
+% (if 5 reps, you have 5 blocks for each condition)
+blockPerCond = 1:nReps;
+
+% I want 10% of my trials (t=27) to be targets
+% I will have 2 or 3 targets per block (adds 10 or 15 sec (max 15) per block) -->
+% duration of the blocks = 150s = 2min30
+
+%% AUDIO
+% randomly select half of the blocks to have 2 1-back stimuli for the audio %
+twoBackBlocksAudio = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
+% remaining half will have 3 1-back stimulus %
+threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
+
+%% VISUAL
+% randomly select half of the blocks to have 2 1-back stimuli for the audio %
+twoBackBlocksVisual = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
+% remaining half will have 3 1-back stimulus %
+threeBackBlocksVisual = setdiff(blockPerCond, twoBackBlocksVisual);
+
+stimuliMatFile = fullfile(cfg.rootDir, 'stimuli', 'stimuli.mat');
+if ~exist(stimuliMatFile, 'file')
+    saveStimuliAsMat()
+end
+load(stimuliMatFile, 'myVidStructArray');
+
 try
 
     PsychDebugWindowConfiguration;
@@ -117,7 +146,7 @@ try
     % This should always be set to 0 for actual experiments
     Screen('Preference', 'SkipSyncTests', 1);
 
-    %% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION %%
+    %% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION
 
     % basic setup checking
     AssertOpenGL;
@@ -129,9 +158,9 @@ try
     % Use max(screenVector) to display on external screen.
     screenVector = Screen('Screens');
 
-    %% EXT screen / FULL window
+    % EXT screen / FULL window
     [Win, screenRect] = Screen('OpenWindow', max(screenVector), bgColor, []);
-    %% MAIN screen / FULL window
+    % MAIN screen / FULL window
     % [Win, screenRect] = Screen('OpenWindow', 0, bgColor, []);
 
     % estimate the monitor flip interval for the onscreen window
@@ -160,7 +189,6 @@ try
     KbName('UnifyKeyNames');
 
     %% CREATING THE VISUAL STIMULI (videos from png frames) %%
-
     frameNum = (1:nFrames);
     % (S1 = AV, S2 = GH, S3 = JB)
     actor = {'S1', 'S2', 'S3'};
@@ -171,115 +199,121 @@ try
     stimName = strcat(stimActors, stimSyll);
     nStim = length(stimName);
 
-    allFrameNames = cell(nFrames, nStim);
-    c = 1;
-    for a = 1:length(actor)
-        for s = 1:length(syllable)
-            for f = 1:length(frameNum)
-                allFrameNames{f, c} = {[actor{a} syllable{s} num2str(frameNum(f))]};
-            end
-            c = c + 1;
-        end
-    end
+    % allFrameNames = cell(nFrames, nStim);
+    % c = 1;
+    % for a = 1:length(actor)
+    %     for s = 1:length(syllable)
+    %         for f = 1:length(frameNum)
+    %             allFrameNames{f, c} = {[actor{a} syllable{s} num2str(frameNum(f))]};
+    %         end
+    %         c = c + 1;
+    %     end
+    % end
 
     % Build one structure per "video"
 
-    stimuli_path = fullfile(this_directory, 'stimuli');
+    % stimuli_path = fullfile(this_directory, 'stimuli');
 
     % feedback in command window
-    fprintf('Preparing frame structures for each video \n');
+    % fprintf('Preparing frame structures for each video \n');
 
-    S1paStruct = struct;
-    S1paStruct = buildFramesStruct(Win, S1paStruct, nFrames, frameDuration, allFrameNames(:, 1), stimuli_path);
-    S1piStruct = struct;
-    S1piStruct = buildFramesStruct(Win, S1piStruct, nFrames, frameDuration, allFrameNames(:, 2), stimuli_path);
-    S1peStruct = struct;
-    S1peStruct = buildFramesStruct(Win, S1peStruct, nFrames, frameDuration, allFrameNames(:, 3), stimuli_path);
+    % S1paStruct = struct;
+    % S1paStruct = buildFramesStruct(Win, S1paStruct, nFrames, frameDuration, allFrameNames(:, 1), stimuli_path);
+    % S1piStruct = struct;
+    % S1piStruct = buildFramesStruct(Win, S1piStruct, nFrames, frameDuration, allFrameNames(:, 2), stimuli_path);
+    % S1peStruct = struct;
+    % S1peStruct = buildFramesStruct(Win, S1peStruct, nFrames, frameDuration, allFrameNames(:, 3), stimuli_path);
 
-    S1faStruct = struct;
-    S1faStruct = buildFramesStruct(Win, S1faStruct, nFrames, frameDuration, allFrameNames(:, 4), stimuli_path);
-    S1fiStruct = struct;
-    S1fiStruct = buildFramesStruct(Win, S1fiStruct, nFrames, frameDuration, allFrameNames(:, 5), stimuli_path);
-    S1feStruct = struct;
-    S1feStruct = buildFramesStruct(Win, S1feStruct, nFrames, frameDuration, allFrameNames(:, 6), stimuli_path);
+    % S1faStruct = struct;
+    % S1faStruct = buildFramesStruct(Win, S1faStruct, nFrames, frameDuration, allFrameNames(:, 4), stimuli_path);
+    % S1fiStruct = struct;
+    % S1fiStruct = buildFramesStruct(Win, S1fiStruct, nFrames, frameDuration, allFrameNames(:, 5), stimuli_path);
+    % S1feStruct = struct;
+    % S1feStruct = buildFramesStruct(Win, S1feStruct, nFrames, frameDuration, allFrameNames(:, 6), stimuli_path);
 
-    S1laStruct = struct;
-    S1laStruct = buildFramesStruct(Win, S1laStruct, nFrames, frameDuration, allFrameNames(:, 7), stimuli_path);
-    S1liStruct = struct;
-    S1liStruct = buildFramesStruct(Win, S1liStruct, nFrames, frameDuration, allFrameNames(:, 8), stimuli_path);
-    S1leStruct = struct;
-    S1leStruct = buildFramesStruct(Win, S1leStruct, nFrames, frameDuration, allFrameNames(:, 9), stimuli_path);
+    % S1laStruct = struct;
+    % S1laStruct = buildFramesStruct(Win, S1laStruct, nFrames, frameDuration, allFrameNames(:, 7), stimuli_path);
+    % S1liStruct = struct;
+    % S1liStruct = buildFramesStruct(Win, S1liStruct, nFrames, frameDuration, allFrameNames(:, 8), stimuli_path);
+    % S1leStruct = struct;
+    % S1leStruct = buildFramesStruct(Win, S1leStruct, nFrames, frameDuration, allFrameNames(:, 9), stimuli_path);
 
-    S2paStruct = struct;
-    S2paStruct = buildFramesStruct(Win, S2paStruct, nFrames, frameDuration, allFrameNames(:, 10), stimuli_path);
-    S2piStruct = struct;
-    S2piStruct = buildFramesStruct(Win, S2piStruct, nFrames, frameDuration, allFrameNames(:, 11), stimuli_path);
-    S2peStruct = struct;
-    S2peStruct = buildFramesStruct(Win, S2peStruct, nFrames, frameDuration, allFrameNames(:, 12), stimuli_path);
+    % S2paStruct = struct;
+    % S2paStruct = buildFramesStruct(Win, S2paStruct, nFrames, frameDuration, allFrameNames(:, 10), stimuli_path);
+    % S2piStruct = struct;
+    % S2piStruct = buildFramesStruct(Win, S2piStruct, nFrames, frameDuration, allFrameNames(:, 11), stimuli_path);
+    % S2peStruct = struct;
+    % S2peStruct = buildFramesStruct(Win, S2peStruct, nFrames, frameDuration, allFrameNames(:, 12), stimuli_path);
 
-    S2faStruct = struct;
-    S2faStruct = buildFramesStruct(Win, S2faStruct, nFrames, frameDuration, allFrameNames(:, 13), stimuli_path);
-    S2fiStruct = struct;
-    S2fiStruct = buildFramesStruct(Win, S2fiStruct, nFrames, frameDuration, allFrameNames(:, 14), stimuli_path);
-    S2feStruct = struct;
-    S2feStruct = buildFramesStruct(Win, S2feStruct, nFrames, frameDuration, allFrameNames(:, 15), stimuli_path);
+    % S2faStruct = struct;
+    % S2faStruct = buildFramesStruct(Win, S2faStruct, nFrames, frameDuration, allFrameNames(:, 13), stimuli_path);
+    % S2fiStruct = struct;
+    % S2fiStruct = buildFramesStruct(Win, S2fiStruct, nFrames, frameDuration, allFrameNames(:, 14), stimuli_path);
+    % S2feStruct = struct;
+    % S2feStruct = buildFramesStruct(Win, S2feStruct, nFrames, frameDuration, allFrameNames(:, 15), stimuli_path);
 
-    S2laStruct = struct;
-    S2laStruct = buildFramesStruct(Win, S2laStruct, nFrames, frameDuration, allFrameNames(:, 16), stimuli_path);
-    S2liStruct = struct;
-    S2liStruct = buildFramesStruct(Win, S2liStruct, nFrames, frameDuration, allFrameNames(:, 17), stimuli_path);
-    S2leStruct = struct;
-    S2leStruct = buildFramesStruct(Win, S2leStruct, nFrames, frameDuration, allFrameNames(:, 18), stimuli_path);
+    % S2laStruct = struct;
+    % S2laStruct = buildFramesStruct(Win, S2laStruct, nFrames, frameDuration, allFrameNames(:, 16), stimuli_path);
+    % S2liStruct = struct;
+    % S2liStruct = buildFramesStruct(Win, S2liStruct, nFrames, frameDuration, allFrameNames(:, 17), stimuli_path);
+    % S2leStruct = struct;
+    % S2leStruct = buildFramesStruct(Win, S2leStruct, nFrames, frameDuration, allFrameNames(:, 18), stimuli_path);
 
-    S3paStruct = struct;
-    S3paStruct = buildFramesStruct(Win, S3paStruct, nFrames, frameDuration, allFrameNames(:, 19), stimuli_path);
-    S3piStruct = struct;
-    S3piStruct = buildFramesStruct(Win, S3piStruct, nFrames, frameDuration, allFrameNames(:, 20), stimuli_path);
-    S3peStruct = struct;
-    S3peStruct = buildFramesStruct(Win, S3peStruct, nFrames, frameDuration, allFrameNames(:, 21), stimuli_path);
+    % S3paStruct = struct;
+    % S3paStruct = buildFramesStruct(Win, S3paStruct, nFrames, frameDuration, allFrameNames(:, 19), stimuli_path);
+    % S3piStruct = struct;
+    % S3piStruct = buildFramesStruct(Win, S3piStruct, nFrames, frameDuration, allFrameNames(:, 20), stimuli_path);
+    % S3peStruct = struct;
+    % S3peStruct = buildFramesStruct(Win, S3peStruct, nFrames, frameDuration, allFrameNames(:, 21), stimuli_path);
 
-    S3faStruct = struct;
-    S3faStruct = buildFramesStruct(Win, S3faStruct, nFrames, frameDuration, allFrameNames(:, 22), stimuli_path);
-    S3fiStruct = struct;
-    S3fiStruct = buildFramesStruct(Win, S3fiStruct, nFrames, frameDuration, allFrameNames(:, 23), stimuli_path);
-    S3feStruct = struct;
-    S3feStruct = buildFramesStruct(Win, S3feStruct, nFrames, frameDuration, allFrameNames(:, 24), stimuli_path);
+    % S3faStruct = struct;
+    % S3faStruct = buildFramesStruct(Win, S3faStruct, nFrames, frameDuration, allFrameNames(:, 22), stimuli_path);
+    % S3fiStruct = struct;
+    % S3fiStruct = buildFramesStruct(Win, S3fiStruct, nFrames, frameDuration, allFrameNames(:, 23), stimuli_path);
+    % S3feStruct = struct;
+    % S3feStruct = buildFramesStruct(Win, S3feStruct, nFrames, frameDuration, allFrameNames(:, 24), stimuli_path);
 
-    S3laStruct = struct;
-    S3laStruct = buildFramesStruct(Win, S3laStruct, nFrames, frameDuration, allFrameNames(:, 25), stimuli_path);
-    S3liStruct = struct;
-    S3liStruct = buildFramesStruct(Win, S3liStruct, nFrames, frameDuration, allFrameNames(:, 26), stimuli_path);
-    S3leStruct = struct;
-    S3leStruct = buildFramesStruct(Win, S3leStruct, nFrames, frameDuration, allFrameNames(:, 27), stimuli_path);
+    % S3laStruct = struct;
+    % S3laStruct = buildFramesStruct(Win, S3laStruct, nFrames, frameDuration, allFrameNames(:, 25), stimuli_path);
+    % S3liStruct = struct;
+    % S3liStruct = buildFramesStruct(Win, S3liStruct, nFrames, frameDuration, allFrameNames(:, 26), stimuli_path);
+    % S3leStruct = struct;
+    % S3leStruct = buildFramesStruct(Win, S3leStruct, nFrames, frameDuration, allFrameNames(:, 27), stimuli_path);
 
     % put them all together
-    myVidStructArray = {S1paStruct, ...
-                        S1piStruct, ...
-                        S1peStruct, ...
-                        S1faStruct, ...
-                        S1fiStruct, ...
-                        S1feStruct, ...
-                        S1laStruct, ...
-                        S1liStruct, ...
-                        S1leStruct, ...
-                        S2paStruct, ...
-                        S2piStruct, ...
-                        S2peStruct, ...
-                        S2faStruct, ...
-                        S2fiStruct, ...
-                        S2feStruct, ...
-                        S2laStruct, ...
-                        S2liStruct, ...
-                        S2leStruct, ...
-                        S3paStruct, ...
-                        S3piStruct, ...
-                        S3peStruct, ...
-                        S3faStruct, ...
-                        S3fiStruct, ...
-                        S3feStruct, ...
-                        S3laStruct, ...
-                        S3liStruct, ...
-                        S3leStruct};
+    % myVidStructArray = {S1paStruct, ...
+    %                     S1piStruct, ...
+    %                     S1peStruct, ...
+    %                     S1faStruct, ...
+    %                     S1fiStruct, ...
+    %                     S1feStruct, ...
+    %                     S1laStruct, ...
+    %                     S1liStruct, ...
+    %                     S1leStruct, ...
+    %                     S2paStruct, ...
+    %                     S2piStruct, ...
+    %                     S2peStruct, ...
+    %                     S2faStruct, ...
+    %                     S2fiStruct, ...
+    %                     S2feStruct, ...
+    %                     S2laStruct, ...
+    %                     S2liStruct, ...
+    %                     S2leStruct, ...
+    %                     S3paStruct, ...
+    %                     S3piStruct, ...
+    %                     S3peStruct, ...
+    %                     S3faStruct, ...
+    %                     S3fiStruct, ...
+    %                     S3feStruct, ...
+    %                     S3laStruct, ...
+    %                     S3liStruct, ...
+    %                     S3leStruct};
+    for iStim = 1:numel(myVidStructArray)
+        for i = 1:numel(myVidStructArray{iStim})
+            myVidStructArray{iStim}(i).duration = frameDuration
+            myVidStructArray{iStim}(i).duration = Screen('MakeTexture', mainWindow, myVidStructArray{iStim}(i).stimImage);
+        end
+    end                      
 
     prepEnd = GetSecs;
     % fb in command window
@@ -287,15 +321,13 @@ try
     disp(strcat('Time for preparation : ', num2str(prepEnd - expStart), ' sec'));
     %% CREATING AUDITORY STIMULI
 
-    %%% pas necessaire pour mon design
-
     %% Read everything into a structure
     % preallocate
     myExpTrials = struct;
     % for the experiment
     for t = 1:length(stimName)
         myExpTrials(t).stimulusname = stimName{t};
-        myExpTrials(t).visualstimuli = struct(myVidStructArray{t});
+        myExpTrials(t).visualstimuli = myVidStructArray.(stimName{t});
         [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(stimuli_path, [myExpTrials(t).stimulusname '.wav']));
         myExpTrials(t).wavedata = myExpTrials(t).audy';
         myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
@@ -307,36 +339,8 @@ try
     % draw black rect for audio-only presentation
     blackScreen = Screen('MakeTexture', Win, black);
 
-    %% ADD TARGET TRIALS
-    % vector with # of blocks per condition
-    % (if 5 reps, you have 5 blocks for each condition)
-    blockPerCond = 1:nReps;
 
-    % I want 10% of my trials (t=27) to be targets
-    % I will have 2 or 3 targets per block (adds 10 or 15 sec (max 15) per block) -->
-    % duration of the blocks = 150s = 2min30
 
-    %% AUDIO
-    % randomly select half of the blocks to have 2 1-back stimuli for the audio %
-    twoBackBlocksAudio = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
-    % remaining half will have 3 1-back stimulus %
-    threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
-
-    %% VISUAL
-    % randomly select half of the blocks to have 2 1-back stimuli for the audio %
-    twoBackBlocksVisual = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
-    % remaining half will have 3 1-back stimulus %
-    threeBackBlocksVisual = setdiff(blockPerCond, twoBackBlocksVisual);
-
-    % triggers
-    cfg = struct;
-
-    cfg.testingDevice = 'mri';
-    cfg.triggerKey = 's'; % keycode for the trigger
-    cfg.numTriggers = 1; % number of excluded volumes (first 2 triggers)
-    cfg.win = Win;
-    cfg.text.color = textColor;
-    cfg.bids.MRI.RepetitionTime = 1.75;
 
     %% BLOCK AND TRIAL LOOP
     % for sound to be used: perform basic initialization of the sound driver
