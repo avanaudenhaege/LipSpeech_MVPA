@@ -28,7 +28,7 @@ visualCond = 2;
 vidDuration = 2;
 videoFrameRate = 25;  %% OR 24.98 ????
 % total num of frames in a whole video (videos of 2sec * 25frames per sec)
-nFrames = videoFrameRate * vidDuration;
+nbFrames = videoFrameRate * vidDuration;
 
 % stimXsize = 1920; % never used
 % stimYsize = 1080; % never used
@@ -457,7 +457,7 @@ try
                     lastEventTime = GetSecs;
 
                     % frames presentation loop
-                    for f = 1:nFrames
+                    for f = 1:nbFrames
 
                         % time stamp to measure stimulus duration on screen
                         if f == 1
@@ -522,7 +522,7 @@ try
 
                     %   % Stay in a little loop for the file duration:
                     %   % use frames presentation loop to get the same duration as in the visual condition%
-                    %   for f = 1:nFrames
+                    %   for f = 1:nbFrames
                     %
                     %   Screen('DrawTexture', Win, blackScreen, [], [], 0);
                     %   [~, ~, lastEventTime] = Screen('Flip', Win, lastEventTime+frameDuration);

@@ -9,7 +9,6 @@ function varargout = preSaveSetup(varargin)
         deal(varargin{:});
 
     thisEvent.event = iTrial;
-    thisEvent.block = iBlock;
     thisEvent.keyName = 'n/a';
     thisEvent.duration = duration;
     thisEvent.onset = onset - cfg.experimentStart;

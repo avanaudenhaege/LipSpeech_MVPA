@@ -11,7 +11,7 @@ function cfg = configuration()
     cfg.vidDuration = 2;
     cfg.videoFrameRate = 25;
     % total num of frames in a whole video
-    cfg.nFrames = cfg.videoFrameRate * cfg.vidDuration;
+    cfg.nbFrames = cfg.videoFrameRate * cfg.vidDuration;
 
     cfg.instructions = 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee';
 

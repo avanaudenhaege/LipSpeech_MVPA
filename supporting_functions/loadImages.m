@@ -4,7 +4,7 @@ function [structureName] = loadImages(cfg, actor, syllable)
     %
     % builds a structure with the images/frames of a video
     %
-    % the output of the function is a structure with a number of rows equal to nFrames and 4 fields:
+    % the output of the function is a structure with a number of rows equal to nbFrames and 4 fields:
     %
     % - actor
     % - syllable
@@ -17,7 +17,7 @@ function [structureName] = loadImages(cfg, actor, syllable)
 
     allImages = bids.internal.file_utils('FPList', cfg.dir.stimuli, ['^' actor syllable '.*.png$']);
 
-    for i = 1:cfg.nFrames
+    for i = 1:cfg.nbFrames
         thisImage = deblank(allImages(i, :));
         structureName(i).actor = actor;
         structureName(i).syllable = syllable;
