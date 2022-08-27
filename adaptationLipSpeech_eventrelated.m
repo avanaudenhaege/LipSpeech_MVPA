@@ -43,28 +43,22 @@
 % (consonant AND vowel).
 
 clear;
-sca;
+% sca;
 clc;
 
+more off;
 
 cfg = configuration();
-
-% add supporting functions to the path
-addpath(genpath(fullfile(cfg.rootDir, 'supporting_functions')));
-addpath(fullfile(cfg.rootDir, 'lib', 'bids-matlab'));
 
 %% Constants
 
 expName = 'LipSpeechMVPA';
 
-% time stamp as the experiment starts
-expStart = GetSecs;
-
 % variables to build block / trial loops
 % (nReps = will be defined by input)
 nBlocks = 2; % num of different blocks (= different acquisition runs) per rep --> one per modality
 nTrials = 27; % per block: 3 cons x 3 vow x 3 speakers
-if cfg.debug
+if cfg.debug.do
     nTrials = 3;
 end
 
@@ -81,8 +75,15 @@ nFrames = videoFrameRate * vidDuration;
 % stimYsize = 1080; % never used
 
 %% User input
-subjNumber = input('SUBJECT NUMBER :');
-sesNumber = input('SESSION NUMBER :');
+cfg.subject.subjectNb = num2str(input('SUBJECT NUMBER :'));
+cfg.subject.sessionNb = num2str(input('SESSION NUMBER :'));
+
+% if set to 'mri' then the data will be saved in the `func` folder
+cfg.testingDevice = 'mri';
+
+cfg.dir.outputSubject = fullfile(cfg.dir.output, ...
+                                 ['sub-' cfg.subject.subjectNb], ...
+                                 ['ses-' cfg.subject.sessionNb], 'func');
 
 nReps = input('NUMBER OF REPETITIONS :');
 % if no value is supplied, do 10 reps
@@ -118,36 +119,43 @@ blockPerCond = 1:nReps;
 % duration of the blocks = 150s = 2min30
 
 % VISUAL
-% randomly select half of the blocks to have 2 1-back stimuli for the audio %
-twoBackBlocksVisual = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
+% randomly select half of the blocks to have 2 1-back stimuli for the audio
+tmp = randperm(nReps);
+twoBackBlocksVisual = tmp(1:round(nReps / 2));
 % remaining half will have 3 1-back stimulus %
 threeBackBlocksVisual = setdiff(blockPerCond, twoBackBlocksVisual);
 
 % AUDIO
-% randomly select half of the blocks to have 2 1-back stimuli for the audio %
-twoBackBlocksAudio = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
+% randomly select half of the blocks to have 2 1-back stimuli for the audio
+tmp = randperm(nReps);
+twoBackBlocksAudio = tmp(1:round(nReps / 2));
 % remaining half will have 3 1-back stimulus %
 threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
 
+clear tmp;
+
 %% Load stimuli
+talkToMe(cfg, 'Load stimuli:');
+% time stamp as the experiment starts
+expStart = GetSecs;
 
 % to keep track of stimuli
 myExpTrials = struct;
 
-% VISUAL
-stimuliMatFile = fullfile(cfg.rootDir, 'stimuli', 'stimuli.mat');
+talkToMe(cfg, '\n visual');
+stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 if ~exist(stimuliMatFile, 'file')
     saveStimuliAsMat();
 end
 load(stimuliMatFile, 'myVidStructArray');
-stimNames = fields(myVidStructArray);
+stimNames = fieldnames(myVidStructArray);
 
-% AUDIO
-for t = 1:length(stimName)
-    myExpTrials(t).stimulusname = stimName{t};
-    myExpTrials(t).visualstimuli = myVidStructArray.(stimName{t});
-    myExpTrials(t).syllable = myVidStructArray.(stimName{t}).syllable;
-    [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.stimuliPath, ...
+talkToMe(cfg, '\n audio');
+for t = 1:length(stimNames)
+    myExpTrials(t).stimulusname = stimNames{t};
+    myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
+    myExpTrials(t).syllable = myVidStructArray.(stimNames{t}).syllable;
+    [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
                                                                        [myExpTrials(t).stimulusname '.wav']));
     myExpTrials(t).wavedata = myExpTrials(t).audy';
     myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
@@ -156,15 +164,20 @@ end
 
 try
 
-    if cfg.debug
+    if cfg.debug.do
         PsychDebugWindowConfiguration;
     end
 
     % This sets a PTB preference to possibly skip some timing tests:
     % a value of 0 runs these tests, and a value of 1 inhibits them.
     % This should always be set to 0 for actual experiments
-    if cfg.debug
+    if cfg.debug.do
         Screen('Preference', 'SkipSyncTests', 1);
+        Screen('Preference', 'Verbosity', 0);
+        % disable all visual alerts
+        Screen('Preference', 'VisualDebugLevel', 0);
+        % disable all output to the command window
+        Screen('Preference', 'SuppressAllWarnings', 1);
     else
         Screen('Preference', 'SkipSyncTests', 0);
     end
@@ -182,15 +195,14 @@ try
     screenVector = Screen('Screens');
 
     % EXT screen / FULL window
-    [Win, screenRect] = Screen('OpenWindow', max(screenVector), cfg.color.bgColor, []);
+    % [Win, screenRect] = Screen('OpenWindow', max(screenVector), cfg.color.bgColor, []);
     % MAIN screen / FULL window
-    % [Win, screenRect] = Screen('OpenWindow', 0, cfg.color.bgColor, []);
+    [Win, screenRect] = Screen('OpenWindow', 0, cfg.color.bgColor, []);
 
     cfg.win = Win;
 
     % estimate the monitor flip interval for the onscreen window
     interFrameInterval = Screen('GetFlipInterval', Win); % in seconds
-    msInterFrameInterval = interFrameInterval * 1000; % in ms
 
     % timings in my trial sequence
     % (substract interFrameInterval/3 to make sure that flipping is done
@@ -214,143 +226,21 @@ try
     ListenChar(2);
     KbName('UnifyKeyNames');
 
-    % CREATING THE VISUAL STIMULI (videos from png frames) %%
-    %     frameNum = (1:nFrames);
-
-    %     stimActors = [repmat({'S1'}, 1, 9), repmat({'S2'}, 1, 9), repmat({'S3'}, 1, 9)];
-    %     stimSyll = repmat({'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'}, 1, 3);
-    %     stimName = strcat(stimActors, stimSyll);
-
-    % nStim = length(stimName);
-
-    % allFrameNames = cell(nFrames, nStim);
-    % c = 1;
-    % for a = 1:length(actor)
-    %     for s = 1:length(syllable)
-    %         for f = 1:length(frameNum)
-    %             allFrameNames{f, c} = {[actor{a} syllable{s} num2str(frameNum(f))]};
-    %         end
-    %         c = c + 1;
-    %     end
-    % end
-
-    % Build one structure per "video"
-
-    % stimuli_path = fullfile(this_directory, 'stimuli');
-
-    % feedback in command window
-    % fprintf('Preparing frame structures for each video \n');
-
-    % S1paStruct = struct;
-    % S1paStruct = buildFramesStruct(Win, S1paStruct, nFrames, frameDuration, allFrameNames(:, 1), stimuli_path);
-    % S1piStruct = struct;
-    % S1piStruct = buildFramesStruct(Win, S1piStruct, nFrames, frameDuration, allFrameNames(:, 2), stimuli_path);
-    % S1peStruct = struct;
-    % S1peStruct = buildFramesStruct(Win, S1peStruct, nFrames, frameDuration, allFrameNames(:, 3), stimuli_path);
-
-    % S1faStruct = struct;
-    % S1faStruct = buildFramesStruct(Win, S1faStruct, nFrames, frameDuration, allFrameNames(:, 4), stimuli_path);
-    % S1fiStruct = struct;
-    % S1fiStruct = buildFramesStruct(Win, S1fiStruct, nFrames, frameDuration, allFrameNames(:, 5), stimuli_path);
-    % S1feStruct = struct;
-    % S1feStruct = buildFramesStruct(Win, S1feStruct, nFrames, frameDuration, allFrameNames(:, 6), stimuli_path);
-
-    % S1laStruct = struct;
-    % S1laStruct = buildFramesStruct(Win, S1laStruct, nFrames, frameDuration, allFrameNames(:, 7), stimuli_path);
-    % S1liStruct = struct;
-    % S1liStruct = buildFramesStruct(Win, S1liStruct, nFrames, frameDuration, allFrameNames(:, 8), stimuli_path);
-    % S1leStruct = struct;
-    % S1leStruct = buildFramesStruct(Win, S1leStruct, nFrames, frameDuration, allFrameNames(:, 9), stimuli_path);
-
-    % S2paStruct = struct;
-    % S2paStruct = buildFramesStruct(Win, S2paStruct, nFrames, frameDuration, allFrameNames(:, 10), stimuli_path);
-    % S2piStruct = struct;
-    % S2piStruct = buildFramesStruct(Win, S2piStruct, nFrames, frameDuration, allFrameNames(:, 11), stimuli_path);
-    % S2peStruct = struct;
-    % S2peStruct = buildFramesStruct(Win, S2peStruct, nFrames, frameDuration, allFrameNames(:, 12), stimuli_path);
-
-    % S2faStruct = struct;
-    % S2faStruct = buildFramesStruct(Win, S2faStruct, nFrames, frameDuration, allFrameNames(:, 13), stimuli_path);
-    % S2fiStruct = struct;
-    % S2fiStruct = buildFramesStruct(Win, S2fiStruct, nFrames, frameDuration, allFrameNames(:, 14), stimuli_path);
-    % S2feStruct = struct;
-    % S2feStruct = buildFramesStruct(Win, S2feStruct, nFrames, frameDuration, allFrameNames(:, 15), stimuli_path);
-
-    % S2laStruct = struct;
-    % S2laStruct = buildFramesStruct(Win, S2laStruct, nFrames, frameDuration, allFrameNames(:, 16), stimuli_path);
-    % S2liStruct = struct;
-    % S2liStruct = buildFramesStruct(Win, S2liStruct, nFrames, frameDuration, allFrameNames(:, 17), stimuli_path);
-    % S2leStruct = struct;
-    % S2leStruct = buildFramesStruct(Win, S2leStruct, nFrames, frameDuration, allFrameNames(:, 18), stimuli_path);
-
-    % S3paStruct = struct;
-    % S3paStruct = buildFramesStruct(Win, S3paStruct, nFrames, frameDuration, allFrameNames(:, 19), stimuli_path);
-    % S3piStruct = struct;
-    % S3piStruct = buildFramesStruct(Win, S3piStruct, nFrames, frameDuration, allFrameNames(:, 20), stimuli_path);
-    % S3peStruct = struct;
-    % S3peStruct = buildFramesStruct(Win, S3peStruct, nFrames, frameDuration, allFrameNames(:, 21), stimuli_path);
-
-    % S3faStruct = struct;
-    % S3faStruct = buildFramesStruct(Win, S3faStruct, nFrames, frameDuration, allFrameNames(:, 22), stimuli_path);
-    % S3fiStruct = struct;
-    % S3fiStruct = buildFramesStruct(Win, S3fiStruct, nFrames, frameDuration, allFrameNames(:, 23), stimuli_path);
-    % S3feStruct = struct;
-    % S3feStruct = buildFramesStruct(Win, S3feStruct, nFrames, frameDuration, allFrameNames(:, 24), stimuli_path);
-
-    % S3laStruct = struct;
-    % S3laStruct = buildFramesStruct(Win, S3laStruct, nFrames, frameDuration, allFrameNames(:, 25), stimuli_path);
-    % S3liStruct = struct;
-    % S3liStruct = buildFramesStruct(Win, S3liStruct, nFrames, frameDuration, allFrameNames(:, 26), stimuli_path);
-    % S3leStruct = struct;
-    % S3leStruct = buildFramesStruct(Win, S3leStruct, nFrames, frameDuration, allFrameNames(:, 27), stimuli_path);
-
-    % put them all together
-    % myVidStructArray = {S1paStruct, ...
-    %                     S1piStruct, ...
-    %                     S1peStruct, ...
-    %                     S1faStruct, ...
-    %                     S1fiStruct, ...
-    %                     S1feStruct, ...
-    %                     S1laStruct, ...
-    %                     S1liStruct, ...
-    %                     S1leStruct, ...
-    %                     S2paStruct, ...
-    %                     S2piStruct, ...
-    %                     S2peStruct, ...
-    %                     S2faStruct, ...
-    %                     S2fiStruct, ...
-    %                     S2feStruct, ...
-    %                     S2laStruct, ...
-    %                     S2liStruct, ...
-    %                     S2leStruct, ...
-    %                     S3paStruct, ...
-    %                     S3piStruct, ...
-    %                     S3peStruct, ...
-    %                     S3faStruct, ...
-    %                     S3fiStruct, ...
-    %                     S3feStruct, ...
-    %                     S3laStruct, ...
-    %                     S3liStruct, ...
-    %                     S3leStruct};
-
-    %
-    fprintf('Turning images into textures.\n');
+    talkToMe(cfg, 'turning images into textures.\n');
     for iStim = 1:numel(stimNames)
         thisStime = stimNames{iStim};
         for iFrame = 1:numel(myVidStructArray.(thisStime))
             myVidStructArray.(thisStime)(iFrame).duration = frameDuration;  %#ok<*SAGROW>
             myVidStructArray.(thisStime)(iFrame).imageTexture = Screen('MakeTexture', ...
-                                                                       mainWindow, ...
+                                                                       Win, ...
                                                                        myVidStructArray.(thisStime)(iFrame).stimImage);
         end
     end
-    fprintf('Done.\n');
-    fprintf('Time for preparation : %0.1f sec.\n', GetSecs - expStart);
-
     % add textures to myExpTrials structure
-    for t = 1:length(stimName)
-        myExpTrials(t).visualstimuli = myVidStructArray.(stimName{t});
+    for t = 1:length(stimNames)
+        myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
     end
+    talkToMe(cfg, sprintf('Done.\nTime for preparation : %0.1f sec.\n', GetSecs - expStart));
 
     % draw black rect for audio-only presentation
     blackScreen = Screen('MakeTexture', Win, cfg.color.black);
@@ -362,6 +252,8 @@ try
     % Repetition loop
     for rep = 1:nReps
 
+        cfg.subject.runNb = rep;
+
         %     % check on participant every 3 blocks
         %     if rep > 1
         %         DrawFormattedText(Win, 'Ready to continue?', 'center', 'center', cfg.color.text);
@@ -369,7 +261,8 @@ try
         %         waitForKb('space');
         %     end
 
-        % define an index (v) number of one-back trials (2 or 3) in the block, depending on the VISUAL blocks we are in%
+        % define an index (v) number of one-back trials (2 or 3) in the block,
+        % depending on the VISUAL blocks we are in
         if ismember(rep, twoBackBlocksVisual)
             v = 2;
         elseif ismember(rep, threeBackBlocksVisual)
@@ -389,8 +282,9 @@ try
         % blocks correspond to modality, so each 'rep' has 2 blocks = 2 acquisition runs
         for block = 1:nBlocks
 
-            DrawFormattedText(Win, 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee', ...
-                              'center', 'center', cfg.color.text);
+            DrawFormattedText(Win, cfg.color.instructions, ...
+                              'center', 'center', ...
+                              cfg.color.text);
             Screen('Flip', Win);
 
             blockModality = orderCondVector(block);
@@ -404,28 +298,35 @@ try
                 modality = 'aud';
             end
 
-            % Set up output file for current run (1 BLOCK = 1 ACQUISITION RUN) %
-            dataFileName = [cd, '/data/subj', num2str(subjNumber), ...
-                            '_ses-0', num2str(sesNumber), ...
-                            '_task-', expName,  ...
-                            '_rep-' num2str(rep), ...
-                            '_block-' num2str(block), ...
-                            '_' modality '_events.tsv'];
+            % Set up output file for current run (1 BLOCK = 1 ACQUISITION RUN)
+            cfg.task.name = [expName modality];
+            cfg = createFilename(cfg);
+            dataFileName = fullfile(cfg.outputDir, cfg.fileName.event);
 
             % open/create file and create header
-            fid = fopen(dataFileName, 'a'); % 'a'== PERMISSION: open or create file for writing; append data to end of file
-            % subject header
-            fprintf(fid, ['Experiment:\t' expName '\n']);
-            fprintf(fid, ['date:\t' datestr(now) '\n']);
-            fprintf(fid, ['Subject:\t' subjNumber '\n']);
+            % 'a'== PERMISSION: open or create file for writing; append data to end of file
+            fid = fopen(dataFileName, 'a');
             % data header
-            fprintf(fid, ['onset\tduration\ttrial_number\tstim_name\tblock\tmodality'
-                          '\trepetition\tactor\tconsonant\tvowel\ttarget\tkeypress_number\tresponsekey\tkeypress_time\n']);
+            header = {'onset', ...
+                      'duration', ...
+                      'trial_number', ...
+                      'stim_name', ...
+                      'bloc', ...
+                      'tmodality', ...
+                      'repetition', ...
+                      'actor', ...
+                      'consonant', ...
+                      'vowel', 'target'...,
+                      'keypress_number', ...
+                      'responsekey', ...
+                      'keypress_time'};
+            header = strjoin(header, '\t');
+            fprintf(fid, [header, '\n']);
             fclose(fid);
 
             % Pseudorandomization made based on syllable vector for the faces
-            [pseudoSyllVector, pseudoSyllIndex] = pseudorandptb(stimSyll);
-            for ind = 1:length(stimSyll)
+            [pseudoSyllVector, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
+            for ind = 1:length(cfg.stimSyll)
                 myExpTrials(pseudoSyllIndex(ind)).pseudorandindex = ind;
             end
 
@@ -438,12 +339,13 @@ try
 
             % add 1-back trials for current block type %
             pseudoRandExpTrialsBack = pseudorandExpTrials;
-            for b = 1:(length(stimSyll) + r)
+            for b = 1:(length(cfg.stimSyll) + r)
                 if r == 2
                     if b <= backTrials(1)
                         pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b);
 
-                        % this trial will be a target (repetition of the previous syllable - different actor)
+                        % this trial will be a target
+                        % (repetition of the previous syllable - different actor)
                     elseif b == backTrials(1) + 1
                         % find where the same-syll-different-actor rows are %
                         syllVector = {pseudorandExpTrials.syllable};
@@ -456,7 +358,8 @@ try
                         % add 1 in trialtype column
                         pseudoRandExpTrialsBack(b).trialtype = 1;
 
-                    elseif b == backTrials(2) + 2 % this trial will have a repeated emotion but a different actor
+                        % this trial will have a repeated emotion but a different actor
+                    elseif b == backTrials(2) + 2
                         % find where the same-emotion-different-actor rows are %
                         syllVector = {pseudorandExpTrials.syllable};
                         syllRepeated = {pseudorandExpTrials(backTrials(2)).syllable};
@@ -493,7 +396,8 @@ try
                         % add 1 in trialtype column
                         pseudoRandExpTrialsBack(b).trialtype = 1;
 
-                    elseif b == backTrials(2) + 2 % this trial will have a repeated emotion but a different actor
+                        % this trial will have a repeated emotion but a different actor
+                    elseif b == backTrials(2) + 2
                         % find where the same-emotion-different-actor rows are %
                         syllVector = {pseudorandExpTrials.syllable};
                         syllRepeated = {pseudorandExpTrials(backTrials(2)).syllable};
@@ -505,7 +409,8 @@ try
                         % add 1 in trialtype column
                         pseudoRandExpTrialsBack(b).trialtype = 1;
 
-                    elseif b == backTrials(3) + 3 % this trial will have a repeated emotion but a different actor
+                        % this trial will have a repeated emotion but a different actor
+                    elseif b == backTrials(3) + 3
                         % find where the same-emotion-different-actor rows are %
                         syllVector = {pseudorandExpTrials.syllable};
                         syllRepeated = {pseudorandExpTrials(backTrials(3)).syllable};
@@ -611,9 +516,11 @@ try
 
                     % ISI
                     [~, ~, ISIend] = Screen('Flip', Win, stimEnd + ISI);
+                    % fb about duration in cw
                     disp(strcat('Timing trial  ', num2str(trial), ...
-                                '- the duration was :', num2str(stimEnd - stimStart), ' sec')); % fb about duration in cw
-                    disp(strcat('Timing ISI - the duration was :', num2str(ISIend - stimEnd), ' sec')); % fb about duration in cw
+                                '- the duration was :', num2str(stimEnd - stimStart), ' sec'));
+                    % fb about duration in cw
+                    disp(strcat('Timing ISI - the duration was :', num2str(ISIend - stimEnd), ' sec'));
 
                     %% auditory
                 elseif blockModality == auditoryCond
@@ -654,14 +561,14 @@ try
                     stimStart = GetSecs;
                     PsychPortAudio('Start', pahandle, 1, 0, 1);
 
-                    % %             % Stay in a little loop for the file duration:
-                    % %             % use frames presentation loop to get the same duration as in the visual condition%
-                    % %             for f = 1:nFrames
-                    % %
-                    % %             Screen('DrawTexture', Win, blackScreen, [], [], 0);
-                    % %             [~, ~, lastEventTime] = Screen('Flip', Win, lastEventTime+frameDuration);
-                    % %
-                    % %             end
+                    %   % Stay in a little loop for the file duration:
+                    %   % use frames presentation loop to get the same duration as in the visual condition%
+                    %   for f = 1:nFrames
+                    %
+                    %   Screen('DrawTexture', Win, blackScreen, [], [], 0);
+                    %   [~, ~, lastEventTime] = Screen('Flip', Win, lastEventTime+frameDuration);
+                    %
+                    %   end
 
                     WaitSecs(2);
 
@@ -676,31 +583,35 @@ try
                     Screen('Flip', Win);
                     [~, ~, ISIend] = Screen('Flip', Win, stimEnd + ISI);
 
+                    % fb about duration in cw
                     disp(strcat('Timing trial ', num2str(trial), '- duration was :', ...
-                                num2str(stimEnd - stimStart), ' sec')); % fb about duration in cw
-                    disp(strcat('Timing ISI - duration was :', num2str(ISIend - stimEnd), ' sec')); % fb about duration in cw
+                                num2str(stimEnd - stimStart), ' sec'));
+                    % fb about duration in cw
+                    disp(strcat('Timing ISI - duration was :', num2str(ISIend - stimEnd), ' sec'));
 
                 end
 
                 % SAVE DATA TO THE OUTPUT FILE
 
                 % get keypresses during this trial
-                pressCodeTime = KbQueue('stop', expStart); % 1 column per keypress; row 1 = keyCode, row 2 = time.
+                % 1 column per keypress; row 1 = keyCode, row 2 = time.
+                pressCodeTime = KbQueue('stop', expStart);
                 pCTSize = size(pressCodeTime);
-                howManyPress = pCTSize(2); % get number of columns = number of keypress
+                % get number of columns = number of keypress
+                howManyPress = pCTSize(2);
                 if howManyPress == 0
                     keyName = '';
                     keyTime = 0;
                 else
-                    keyName = KbName(pressCodeTime(1, 1)); % get name of the first key pressed (1st row, 1st col)
-                    keyTime = pressCodeTime(2, 1); % get time of the first key (2nd row, 1st col)
+                    % get name of the first key pressed (1st row, 1st col)
+                    keyName = KbName(pressCodeTime(1, 1));
+                    % get time of the first key (2nd row, 1st col)
+                    keyTime = pressCodeTime(2, 1);
                 end
 
                 % write in the output file
 
                 % header was defined previously as :
-                % onset duration trial_number stim_name block modality repetition actor consonant vowel target keypress_number responsekey keypress_time
-
                 fid = fopen(dataFileName, 'a');
                 fprintf(fid, '%.3f\t%.3f\t%d\t%s\t%d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\t%s\t%.3f\n', ...
                         stimStart - expStart, ...
@@ -743,8 +654,10 @@ try
     ShowCursor;
     sca;
 
-catch
+catch ME
     ListenChar(0);
     ShowCursor;
     sca;
+
+    rethrow(ME);
 end

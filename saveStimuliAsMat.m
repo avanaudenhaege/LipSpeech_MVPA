@@ -5,10 +5,6 @@ function saveStimuliAsMat()
 
     cfg = configuration();
 
-    % needed in case we want to run it by itself
-    addpath(genpath(fullfile(cfg.rootDir, 'supporting_functions')));
-    addpath(fullfile(cfg.rootDir, 'lib', 'bids-matlab'));
-
     fprintf('Preparing frame structures for each video \n');
 
     myVidStructArray = {};
@@ -20,8 +16,8 @@ function saveStimuliAsMat()
         end
     end
 
-    stimuliMatFile = fullfile(cfg.rootDir, 'stimuli', 'stimuli.mat');
+    stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 
-    save(stimuliMatFile, 'myVidStructArray', '-v7.3');
+    save(stimuliMatFile, 'myVidStructArray', '-v7');
 
 end

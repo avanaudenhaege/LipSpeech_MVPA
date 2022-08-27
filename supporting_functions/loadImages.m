@@ -15,7 +15,7 @@ function [structureName] = loadImages(cfg, actor, syllable)
 
     fprintf('\nloading %s', [actor syllable]);
 
-    allImages = bids.internal.file_utils('FPList', cfg.stimuliPath, ['^' actor syllable '.*.png$']);
+    allImages = bids.internal.file_utils('FPList', cfg.dir.stimuli, ['^' actor syllable '.*.png$']);
 
     for i = 1:cfg.nFrames
         thisImage = deblank(allImages(i, :));
