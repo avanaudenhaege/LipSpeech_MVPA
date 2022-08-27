@@ -61,7 +61,7 @@ function talkToMe(cfg, msg)
     if isfield(cfg, 'win')
 
         DrawFormattedText(cfg.win, msg, ...
-                          'center', 'center', cfg.text.color);
+                          'center', 'center', cfg.color.text);
 
         Screen('Flip', cfg.win);
 

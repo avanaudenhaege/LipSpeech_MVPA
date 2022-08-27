@@ -46,31 +46,27 @@ clear;
 sca;
 clc;
 
+
 cfg = configuration();
 
 % add supporting functions to the path
 addpath(genpath(fullfile(cfg.rootDir, 'supporting_functions')));
 addpath(fullfile(cfg.rootDir, 'lib', 'bids-matlab'));
 
-expName = 'LipSpeechMVPA';
+%% Constants
 
-%% VARIABLE SETTINGS
+expName = 'LipSpeechMVPA';
 
 % time stamp as the experiment starts
 expStart = GetSecs;
-
-% colors
-white = 255;
-black = 0;
-midgrey = [127 127 127];
-bgColor = black;
-fixColor = black;
-textColor = white;
 
 % variables to build block / trial loops
 % (nReps = will be defined by input)
 nBlocks = 2; % num of different blocks (= different acquisition runs) per rep --> one per modality
 nTrials = 27; % per block: 3 cons x 3 vow x 3 speakers
+if cfg.debug
+    nTrials = 3;
+end
 
 auditoryCond = 1;
 visualCond = 2;
@@ -80,10 +76,11 @@ vidDuration = 2;
 videoFrameRate = 25;  %% OR 24.98 ????
 % total num of frames in a whole video (videos of 2sec * 25frames per sec)
 nFrames = videoFrameRate * vidDuration;
-stimXsize = 1920;
-stimYsize = 1080;
 
-% input info
+% stimXsize = 1920; % never used
+% stimYsize = 1080; % never used
+
+%% User input
 subjNumber = input('SUBJECT NUMBER :');
 sesNumber = input('SESSION NUMBER :');
 
@@ -110,7 +107,8 @@ end
 
 orderCondVector = [firstCondition, secondCondition];
 
-%% ADD TARGET TRIALS
+%% Add target trials
+
 % vector with # of blocks per condition
 % (if 5 reps, you have 5 blocks for each condition)
 blockPerCond = 1:nReps;
@@ -119,32 +117,57 @@ blockPerCond = 1:nReps;
 % I will have 2 or 3 targets per block (adds 10 or 15 sec (max 15) per block) -->
 % duration of the blocks = 150s = 2min30
 
-%% AUDIO
-% randomly select half of the blocks to have 2 1-back stimuli for the audio %
-twoBackBlocksAudio = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
-% remaining half will have 3 1-back stimulus %
-threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
-
-%% VISUAL
+% VISUAL
 % randomly select half of the blocks to have 2 1-back stimuli for the audio %
 twoBackBlocksVisual = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
 % remaining half will have 3 1-back stimulus %
 threeBackBlocksVisual = setdiff(blockPerCond, twoBackBlocksVisual);
 
+% AUDIO
+% randomly select half of the blocks to have 2 1-back stimuli for the audio %
+twoBackBlocksAudio = datasample(blockPerCond, round(nReps / 2), 'Replace', false);
+% remaining half will have 3 1-back stimulus %
+threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
+
+%% Load stimuli
+
+% to keep track of stimuli
+myExpTrials = struct;
+
+% VISUAL
 stimuliMatFile = fullfile(cfg.rootDir, 'stimuli', 'stimuli.mat');
 if ~exist(stimuliMatFile, 'file')
-    saveStimuliAsMat()
+    saveStimuliAsMat();
 end
 load(stimuliMatFile, 'myVidStructArray');
+stimNames = fields(myVidStructArray);
+
+% AUDIO
+for t = 1:length(stimName)
+    myExpTrials(t).stimulusname = stimName{t};
+    myExpTrials(t).visualstimuli = myVidStructArray.(stimName{t});
+    myExpTrials(t).syllable = myVidStructArray.(stimName{t}).syllable;
+    [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.stimuliPath, ...
+                                                                       [myExpTrials(t).stimulusname '.wav']));
+    myExpTrials(t).wavedata = myExpTrials(t).audy';
+    myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
+    myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
+end
 
 try
 
-    PsychDebugWindowConfiguration;
+    if cfg.debug
+        PsychDebugWindowConfiguration;
+    end
 
     % This sets a PTB preference to possibly skip some timing tests:
     % a value of 0 runs these tests, and a value of 1 inhibits them.
     % This should always be set to 0 for actual experiments
-    Screen('Preference', 'SkipSyncTests', 1);
+    if cfg.debug
+        Screen('Preference', 'SkipSyncTests', 1);
+    else
+        Screen('Preference', 'SkipSyncTests', 0);
+    end
 
     %% INITIALIZE SCREEN AND START THE STIMULI PRESENTATION
 
@@ -159,16 +182,19 @@ try
     screenVector = Screen('Screens');
 
     % EXT screen / FULL window
-    [Win, screenRect] = Screen('OpenWindow', max(screenVector), bgColor, []);
+    [Win, screenRect] = Screen('OpenWindow', max(screenVector), cfg.color.bgColor, []);
     % MAIN screen / FULL window
-    % [Win, screenRect] = Screen('OpenWindow', 0, bgColor, []);
+    % [Win, screenRect] = Screen('OpenWindow', 0, cfg.color.bgColor, []);
+
+    cfg.win = Win;
 
     % estimate the monitor flip interval for the onscreen window
     interFrameInterval = Screen('GetFlipInterval', Win); % in seconds
     msInterFrameInterval = interFrameInterval * 1000; % in ms
 
     % timings in my trial sequence
-    % (substract interFrameInterval/3 to make sure that flipping is done at 3sec straight and not 1 frame later)
+    % (substract interFrameInterval/3 to make sure that flipping is done
+    % at 3sec straight and not 1 frame later)
     ISI = 3 - interFrameInterval / 6;
     frameDuration = 1 / videoFrameRate - interFrameInterval / 6;
 
@@ -188,16 +214,14 @@ try
     ListenChar(2);
     KbName('UnifyKeyNames');
 
-    %% CREATING THE VISUAL STIMULI (videos from png frames) %%
-    frameNum = (1:nFrames);
-    % (S1 = AV, S2 = GH, S3 = JB)
-    actor = {'S1', 'S2', 'S3'};
-    syllable = {'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'};
+    % CREATING THE VISUAL STIMULI (videos from png frames) %%
+    %     frameNum = (1:nFrames);
 
-    stimActors = [repmat({'S1'}, 1, 9), repmat({'S2'}, 1, 9), repmat({'S3'}, 1, 9)];
-    stimSyll = repmat({'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'}, 1, 3);
-    stimName = strcat(stimActors, stimSyll);
-    nStim = length(stimName);
+    %     stimActors = [repmat({'S1'}, 1, 9), repmat({'S2'}, 1, 9), repmat({'S3'}, 1, 9)];
+    %     stimSyll = repmat({'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'}, 1, 3);
+    %     stimName = strcat(stimActors, stimSyll);
+
+    % nStim = length(stimName);
 
     % allFrameNames = cell(nFrames, nStim);
     % c = 1;
@@ -308,39 +332,28 @@ try
     %                     S3laStruct, ...
     %                     S3liStruct, ...
     %                     S3leStruct};
-    for iStim = 1:numel(myVidStructArray)
-        for i = 1:numel(myVidStructArray{iStim})
-            myVidStructArray{iStim}(i).duration = frameDuration
-            myVidStructArray{iStim}(i).duration = Screen('MakeTexture', mainWindow, myVidStructArray{iStim}(i).stimImage);
+
+    %
+    fprintf('Turning images into textures.\n');
+    for iStim = 1:numel(stimNames)
+        thisStime = stimNames{iStim};
+        for iFrame = 1:numel(myVidStructArray.(thisStime))
+            myVidStructArray.(thisStime)(iFrame).duration = frameDuration;  %#ok<*SAGROW>
+            myVidStructArray.(thisStime)(iFrame).imageTexture = Screen('MakeTexture', ...
+                                                                       mainWindow, ...
+                                                                       myVidStructArray.(thisStime)(iFrame).stimImage);
         end
-    end                      
+    end
+    fprintf('Done.\n');
+    fprintf('Time for preparation : %0.1f sec.\n', GetSecs - expStart);
 
-    prepEnd = GetSecs;
-    % fb in command window
-    fprintf('Frame structures ready \n');
-    disp(strcat('Time for preparation : ', num2str(prepEnd - expStart), ' sec'));
-    %% CREATING AUDITORY STIMULI
-
-    %% Read everything into a structure
-    % preallocate
-    myExpTrials = struct;
-    % for the experiment
+    % add textures to myExpTrials structure
     for t = 1:length(stimName)
-        myExpTrials(t).stimulusname = stimName{t};
         myExpTrials(t).visualstimuli = myVidStructArray.(stimName{t});
-        [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(stimuli_path, [myExpTrials(t).stimulusname '.wav']));
-        myExpTrials(t).wavedata = myExpTrials(t).audy';
-        myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
-        myExpTrials(t).syllable = stimSyll(t);
-        myExpTrials(t).actor = stimActors(t);
-        myExpTrials(t).trialtype = 0; % col that will be filled with 1 if trial is a target
     end
 
     % draw black rect for audio-only presentation
-    blackScreen = Screen('MakeTexture', Win, black);
-
-
-
+    blackScreen = Screen('MakeTexture', Win, cfg.color.black);
 
     %% BLOCK AND TRIAL LOOP
     % for sound to be used: perform basic initialization of the sound driver
@@ -351,7 +364,7 @@ try
 
         %     % check on participant every 3 blocks
         %     if rep > 1
-        %         DrawFormattedText(Win, 'Ready to continue?', 'center', 'center', textColor);
+        %         DrawFormattedText(Win, 'Ready to continue?', 'center', 'center', cfg.color.text);
         %         Screen('Flip', Win);
         %         waitForKb('space');
         %     end
@@ -377,7 +390,7 @@ try
         for block = 1:nBlocks
 
             DrawFormattedText(Win, 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee', ...
-                              'center', 'center', textColor);
+                              'center', 'center', cfg.color.text);
             Screen('Flip', Win);
 
             blockModality = orderCondVector(block);
@@ -572,7 +585,7 @@ try
                 if blockModality == visualCond
 
                     if trial == 1
-                        DrawFormattedText(Win, 'Faites attention aux LEVRES', 'center', 'center', textColor);
+                        DrawFormattedText(Win, 'Faites attention aux LEVRES', 'center', 'center', cfg.color.text);
                         Screen('Flip', Win);
                         WaitSecs(0.5);
                     end
@@ -594,7 +607,7 @@ try
                     stimEnd = GetSecs;
 
                     % clear last frame
-                    Screen('FillRect', Win, bgColor);
+                    Screen('FillRect', Win, cfg.color.bgColor);
 
                     % ISI
                     [~, ~, ISIend] = Screen('Flip', Win, stimEnd + ISI);
@@ -606,11 +619,11 @@ try
                 elseif blockModality == auditoryCond
 
                     if trial == 1
-                        DrawFormattedText(Win, 'Faites attention aux VOIX', 'center', 'center', textColor);
+                        DrawFormattedText(Win, 'Faites attention aux VOIX', 'center', 'center', cfg.color.text);
                         Screen('Flip', Win);
                         WaitSecs(0.5);
                         % clear instructions from screen
-                        Screen('FillRect', Win, bgColor);
+                        Screen('FillRect', Win, cfg.color.bgColor);
                         [~, ~, lastEventTime] = Screen('Flip', Win);
                     end
 
@@ -720,7 +733,7 @@ try
 
     end
 
-    DrawFormattedText(Win, 'Fin de l''experience :)\nMERCI !', 'center', 'center', textColor);
+    DrawFormattedText(Win, 'Fin de l''experience :)\nMERCI !', 'center', 'center', cfg.color.text);
     Screen('Flip', Win);
     expEnd = GetSecs;
     disp(strcat('Experiment duration: ', num2str((expEnd - expStart) / 60), ' \n Press SPACE to end'));
