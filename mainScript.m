@@ -206,6 +206,8 @@ try
 
             talkToMe('WAITING FOR TRIGGER (instructions displayed on the screen) \n');
 
+            waitForTrigger(cfg);
+
             % prepare the KbQueue to collect responses
             getResponse('init', cfg.keyboard.responseBox, cfg);
 
