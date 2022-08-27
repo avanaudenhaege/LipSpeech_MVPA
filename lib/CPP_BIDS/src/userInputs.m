@@ -1,3 +1,5 @@
+% (C) Copyright 2020 CPP_BIDS developers
+
 function cfg = userInputs(cfg)
     %
     % Get subject, run and session number and make sure they are
@@ -6,7 +8,7 @@ function cfg = userInputs(cfg)
     %
     % USAGE::
     %
-    %   cfg = userInputs(cfg)
+    %   cfg = userInputs([cfg])
     %
     % :param cfg: Configuration. See ``checkCFG()``.
     % :type cfg: structure
@@ -21,8 +23,6 @@ function cfg = userInputs(cfg)
     %
     % - the first value set to ``false`` will skip asking for the participants group
     % - the second value set to ``false`` will skip asking for the session
-    %
-    % (C) Copyright 2020 CPP_BIDS developers
 
     if nargin < 1
         cfg = struct('debug', []);
@@ -30,25 +30,31 @@ function cfg = userInputs(cfg)
 
     cfg = checkCFG(cfg);
 
-    [items, cfg] = createQuestionnaire(cfg);
+    [cfg, responses] = setDefaultResponses(cfg);
 
-    if cfg.useGUI
+    if ~cfg.debug.do
 
-        %         try
-        items = askUserGui(items);
-        %         catch
-        %             items = askUserCli(items);
-        %         end
+        questions = createQuestionList(cfg);
 
-    else
+        if cfg.useGUI
 
-        items = askUserCli(items);
+            try
+                responses = askUserGui(questions, responses);
+            catch
+                responses = askUserCli(questions, responses);
+            end
+
+        else
+
+            responses = askUserCli(questions, responses);
+
+        end
 
     end
 
-    cfg.subject.subjectGrp = items(1).response;
-    cfg.subject.subjectNb = items(2).response;
-    cfg.subject.sessionNb = items(3).response;
-    cfg.subject.runNb = items(4).response;
+    cfg.subject.subjectGrp = responses{1, 1};
+    cfg.subject.subjectNb = responses{2, 1};
+    cfg.subject.sessionNb = responses{3, 1};
+    cfg.subject.runNb = responses{4, 1};
 
 end

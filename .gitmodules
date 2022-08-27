@@ -1,0 +1,2 @@
+[submodule "lib/CPP_BIDS"]
+	datalad-url = https://github.com/cpp-lln-lab/CPP_BIDS.git

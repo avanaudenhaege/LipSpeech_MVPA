@@ -46,9 +46,7 @@ function checkCppBidsDependencies(cfg)
         CPP_BIDS_INITIALIZED = true();
 
     else
-        if ~isfield(cfg, 'versbose') || cfg.verbose
-            fprintf(1, '\n\nCPP_BIDS already initialized\n\n');
-        end
+        fprintf(1, '\n\nCPP_BIDS already initialized\n\n');
 
     end
 

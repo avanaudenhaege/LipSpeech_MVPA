@@ -1,3 +1,5 @@
+% (C) Copyright 2020 CPP_BIDS developers
+
 function fieldsToSet = transferInfoToBids(fieldsToSet, cfg)
     %
     % Transfers any info that might have been provided
@@ -20,11 +22,10 @@ function fieldsToSet = transferInfoToBids(fieldsToSet, cfg)
     % manually in ``cfg.mri.repetitionTime`` or in ``cfg.task.name``
     % will be passed to the correct field in right fields of ``cfg.bids``.
     %
-    % (C) Copyright 2020 CPP_BIDS developers
 
     if isfield(cfg, 'task') && isfield(cfg.task, 'name')
-        taskName = bids.internal.camel_case(cfg.task.name);
-        fieldsToSet.fileName.task = taskName;
+        [taskName, taskNameValid] = createValidName(cfg.task.name);
+        fieldsToSet.fileName.task = taskNameValid;
         fieldsToSet.bids.meg.TaskName = taskName;
         fieldsToSet.bids.eeg.TaskName = taskName;
         fieldsToSet.bids.ieeg.TaskName = taskName;

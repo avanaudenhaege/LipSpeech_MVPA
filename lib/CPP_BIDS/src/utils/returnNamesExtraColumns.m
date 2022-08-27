@@ -1,3 +1,5 @@
+% (C) Copyright 2020 CPP_BIDS developers
+
 function [namesExtraColumns] = returnNamesExtraColumns(logFile)
     %
     % It returns the extra columns name(s), in ``cfg.extraColumns``,  as header to add to the
@@ -12,7 +14,6 @@ function [namesExtraColumns] = returnNamesExtraColumns(logFile)
     %
     % :returns: - :namesExtraColumns: (cell) (nx1)
     %
-    % (C) Copyright 2020 CPP_BIDS developers
 
     namesExtraColumns = [];
 

@@ -1,12 +1,11 @@
-*_eeg.json
-*_eeg.edf
+*_beh.*
+*_eeg.*
+*_ieeg.*
+*_meg.*
 
-*_ieeg.json
-*_ieeg.edf
-
-*_meg.json
-*_meg.fif
-
-*_beh.tsv
+# *_beh.tsv
+# *_eeg.edf
+# *_ieeg.edf
+# *_meg.fif
 
 # *_bold.nii.gz

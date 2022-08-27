@@ -8,7 +8,7 @@ function test_suite = test_readAndFilterLogfile %#ok<*STOUT>
     initTestSuite;
 end
 
-function test_readAndFilterLogfile_basic()
+function test_readAndFilterLogfileBasic()
 
     %% set up
     [cfg, logFile] = setUp();
@@ -52,11 +52,11 @@ function test_readAndFilterLogfile_basic()
     saveEventsFile('close', cfg, logFile);
 
     % filter file
-    readAndFilterLogfile('trial_type', 'trial_type==motion_down', true, cfg);
+    outputFiltered = readAndFilterLogfile('trial_type', 'motion_down', true, cfg);
 
     %% test
     expectedFilename = strrep(cfg.fileName.events, '.tsv', ...
-                              '_filteredOn-trial_type.tsv');
+                              ['_filteredBy-' 'trial_type' '_' 'motion_down' '.tsv']);
     expectedFile = fullfile(cfg.dir.outputSubject, ...
                             cfg.fileName.modality, ...
                             expectedFilename);
@@ -70,11 +70,9 @@ function test_readAndFilterLogfile_basic()
     assertEqual(content.trial_type{1}, 'motion_down');
     assertEqual(content.trial_type{2}, 'motion_down');
 
-    delete(expectedFile);
-
 end
 
-function test_readAndFilterLogfile_from_file()
+function test_readAndFilterLogfileFromFile()
 
     %% set up
 
@@ -82,18 +80,16 @@ function test_readAndFilterLogfile_from_file()
                          'sub-blind01_ses-01_task-vislocalizer_events.tsv');
 
     % filter file
-    readAndFilterLogfile('trial_type', 'trial_type==VisStat', true, inputFile);
+    outputFiltered = readAndFilterLogfile('trial_type', 'VisStat', true, inputFile);
 
     %% test
     expectedFile = strrep(inputFile, '.tsv', ...
-                          '_filteredOn-trial_type.tsv');
+                          ['_filteredBy-' 'trial_type' '_' 'VisStat' '.tsv']);
 
     assertEqual(exist(expectedFile, 'file'), 2);
 
     content = bids.util.tsvread(expectedFile);
 
     assertEqual(content.trial_type{1}, 'VisStat');
-
-    delete(expectedFile);
 
 end

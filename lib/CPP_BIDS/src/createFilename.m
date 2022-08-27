@@ -1,3 +1,5 @@
+% (C) Copyright 2020 CPP_BIDS developers
+
 function cfg = createFilename(cfg)
     %
     % It creates the BIDS compliant directories and fileNames for the behavioral output
@@ -32,8 +34,6 @@ function cfg = createFilename(cfg)
     %   - ``cfg.eyeTracker.do`` set to ``true``, can work for simple eyetracking data.
     %
     % See ``test_createFilename`` in the ``tests`` folder for more details on how to use it.
-    %
-    % (C) Copyright 2020 CPP_BIDS developers
 
     cfg = checkCFG(cfg);
 
@@ -76,7 +76,7 @@ end
 function cfg = getModality(cfg)
 
     switch lower(cfg.testingDevice)
-        case {'pc', 'beh'}
+        case 'pc'
             modality = 'beh';
         case 'mri'
             modality = 'func';
@@ -129,35 +129,47 @@ end
 
 function cfg = setSuffixes(cfg)
 
-    cfg.filename.entities.run = sprintf(cfg.fileName.pattern, cfg.subject.runNb);
+    cfg.fileName.suffix.run = ['_run-' sprintf(cfg.fileName.pattern, cfg.subject.runNb)];
 
     %% MRI
     % set values for the suffixes for the different fields in the BIDS name
-    fields2Check = {'acq', ...
+    fields2Check = { ...
+                    'acquisition', ...
+                    'contrastEnhancement', ...
+                    'echo', ...
+                    'phaseEncodingDirection', ...
+                    'reconstruction', ...
+                    'recording' ...
+                   };
+
+    targetFields = { ...
+                    'acq', ...
                     'ce', ...
                     'echo', ...
                     'dir', ...
                     'rec', ...
-                    'recording'};
+                    'recording' ...
+                   };
 
     for iField = 1:numel(fields2Check)
 
         if isempty (cfg.suffix.(fields2Check{iField})) %#ok<*GFLD>
 
-            cfg.filename.entities.(fields2Check{iField}) = ''; %#ok<*SFLD>
+            cfg.fileName.suffix.(fields2Check{iField}) = ''; %#ok<*SFLD>
 
         else
 
             % upper camelCase and remove invalid characters
             thisField = getfield(cfg.suffix, fields2Check{iField});
-            validFieldName = bids.internal.camel_case(thisField);
+            [~, validFieldName] = createValidName(thisField);
 
-            cfg.filename.entities.(fields2Check{iField}) = validFieldName;
+            cfg.fileName.suffix.(fields2Check{iField}) = ...
+                ['_' targetFields{iField} '-' validFieldName];
 
         end
     end
 
-    cfg.filename.entities = orderfields(cfg.filename.entities);
+    cfg.fileName.suffix = orderfields(cfg.fileName.suffix);
 
 end
 
@@ -167,59 +179,56 @@ function cfg = setFilenames(cfg)
 
     pattern = cfg.fileName.pattern;
 
-    cfg.fileName.datasetDescription = fullfile (cfg.dir.output, 'dataset_description.json');
+    runSuffix = cfg.fileName.suffix.run;
+    acqSuffix = cfg.fileName.suffix.acquisition;
+    ceSuffix = cfg.fileName.suffix.contrastEnhancement;
+    dirSuffix = cfg.fileName.suffix.phaseEncodingDirection;
+    recSuffix = cfg.fileName.suffix.reconstruction;
+    echoSuffix = cfg.fileName.suffix.echo;
+    recordingSuffix = cfg.fileName.suffix.recording;
+
+    thisDate = cfg.fileName.date;
+
+    cfg.fileName.datasetDescription = fullfile ( ...
+                                                cfg.dir.output, ...
+                                                'dataset_description.json');
 
     % create base fileName
-    spec.entities = struct('sub', [subjectGrp, sprintf(pattern, subjectNb)]);
-    spec.entities.ses = sprintf(pattern, sessionNb);
-    spec.entities.task = taskName;
-
-    bf = bids.File(spec);
-    cfg.fileName.base = bf.filename;
+    fileNameBase = ...
+        ['sub-', subjectGrp, sprintf(pattern, subjectNb), ...
+         '_ses-', sprintf(pattern, sessionNb), ...
+         '_task-', taskName];
+    cfg.fileName.base = fileNameBase;
 
     switch modality
 
         case 'func'
 
-            spec.entities.acq = cfg.filename.entities.acq;
-            spec.entities.ce = cfg.filename.entities.ce;
-            spec.entities.dir = cfg.filename.entities.dir;
-            spec.entities.rec = cfg.filename.entities.rec;
-            spec.entities.run = cfg.filename.entities.run;
-            spec.entities.echo = cfg.filename.entities.echo;
+            basename = [fileNameBase, ...
+                        acqSuffix, ceSuffix, ...
+                        dirSuffix, recSuffix, ...
+                        runSuffix, echoSuffix];
 
         case 'beh'
 
-            spec.entities.acq = cfg.filename.entities.acq;
-            spec.entities.run = cfg.filename.entities.run;
+            basename = ...
+                [fileNameBase, ...
+                 acqSuffix, ...
+                 runSuffix];
 
         otherwise
 
-            spec.entities.run = cfg.filename.entities.run;
+            basename = [fileNameBase, runSuffix];
 
     end
 
-    spec.ext = '.tsv';
+    cfg.fileName.events = [basename, '_events_date-' thisDate '.tsv'];
 
-    spec.suffix = 'events';
-    bf = bids.File(addDate(spec, cfg.fileName.date));
-    cfg.fileName.events = bf.filename;
-
-    spec.entities.recording = cfg.filename.entities.recording;
-    spec.suffix = 'stim';
-    bf = bids.File(addDate(spec, cfg.fileName.date));
-    cfg.fileName.stim = bf.filename;
+    cfg.fileName.stim = [basename, recordingSuffix, '_stim_date-' thisDate '.tsv'];
 
     if cfg.eyeTracker.do
-        spec.entities.recording = 'eyetracking';
-        spec.suffix = 'physio';
-        spec.ext = '.edf';
-        bf = bids.File(addDate(spec, cfg.fileName.date));
-        cfg.fileName.eyetracker = bf.filename;
+        cfg.fileName.eyetracker = ...
+            [basename, '_recording-eyetracking_physio_date-' thisDate '.edf'];
     end
 
-end
-
-function spec = addDate(spec, thisDate)
-    spec.entities.date = thisDate;
 end

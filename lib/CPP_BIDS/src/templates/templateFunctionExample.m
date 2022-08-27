@@ -1,3 +1,5 @@
+% (C) Copyright 2020 CPP_BIDS developers
+
 function templateFunctionExample()
     % This function illustrates a documentation test defined for MOdox.
     % Other than that it does absolutely nothinghort description of what
@@ -34,8 +36,6 @@ function templateFunctionExample()
     %
     %
     % % tests end here because test indentation has ended
-    %
-    % (C) Copyright 2020 CPP_BIDS developers
 
     % The code goes below
 

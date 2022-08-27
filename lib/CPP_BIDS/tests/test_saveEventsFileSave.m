@@ -8,7 +8,7 @@ function test_suite = test_saveEventsFileSave %#ok<*STOUT>
     initTestSuite;
 end
 
-function test_saveEventsFile_save_basic()
+function test_saveEventsFileSaveBasic()
 
     %% set up
 
@@ -46,9 +46,12 @@ function test_saveEventsFile_save_basic()
 
 end
 
-function test_saveEventsFile_save_no_extra_tab()
+function test_saveEventsFileSaveNoExtraTab()
 
-    cfg = globalTestSetUp();
+    cfg.verbose = 2;
+
+    cfg.subject.subjectNb = 1;
+    cfg.subject.runNb = 1;
 
     cfg.task.name = 'testtask';
 
@@ -60,6 +63,9 @@ function test_saveEventsFile_save_no_extra_tab()
 
     logFile = saveEventsFile('init', cfg, logFile);
     logFile = saveEventsFile('open', cfg, logFile);
+
+    %     logFile.onset = 2;
+    %     logFile.duration = 3;
 
     % ROW 2: normal events : all info is there
     logFile(1, 1).onset = 2;
@@ -83,16 +89,19 @@ function test_saveEventsFile_save_no_extra_tab()
     content = fread(FID, 900);
     tab = 9;
     eol = 10;
-    assertEqual(content(end), 10);
+    assert(content(end) == 10);
     assert(content(end - 1) ~= 9);
 
 end
 
-function test_saveEventsFile_save_stim()
+function test_saveEventsFileSaveStim()
 
     %% set up
 
-    cfg = globalTestSetUp();
+    cfg.verbose = 2;
+
+    cfg.subject.subjectNb = 1;
+    cfg.subject.runNb = 1;
 
     cfg.task.name = 'testtask';
 
@@ -142,29 +151,13 @@ function test_saveEventsFile_save_stim()
 
 end
 
-function test_saveEventsFile_warning_empty_events()
+function test_saveEventsFileSaveSkipEmptyEvents()
 
     %% set up
 
     [cfg, logFile] = setUp();
-
-    % create the events file and header
-    logFile = saveEventsFile('open', cfg, logFile);
-
-    % "empty" events except the last one
-    logFile(1, 1).onset = [];
-    logFile(end, 1).duration = [];
 
     cfg.verbose = 1;
-    assertWarning(@()saveEventsFile('save', cfg, logFile), 'saveEventsFile:emptyEvent');
-
-end
-
-function test_saveEventsFile_save_skip_empty_events()
-
-    %% set up
-
-    [cfg, logFile] = setUp();
 
     % create the events file and header
     logFile = saveEventsFile('open', cfg, logFile);
@@ -188,6 +181,8 @@ function test_saveEventsFile_save_skip_empty_events()
     logFile(6, 1).onset = 1;
     logFile(end, 1).duration = 1;
 
+    assertWarning(@()saveEventsFile('save', cfg, logFile), 'saveEventsFile:emptyEvent');
+
     saveEventsFile('save', cfg, logFile);
 
     % close the file
@@ -199,12 +194,12 @@ function test_saveEventsFile_save_skip_empty_events()
     content = getFileContent(cfg, logFile);
 
     % event 4-5 / ROW 5-6: skip empty events
-    assertEqual(size(content{1}, 1), 2);
-    assertEqual(content{1}{2}, sprintf('%f', 1));
+    assertTrue(isequal(size(content{1}, 1), 2));
+    assertTrue(~isequal(content{1}{1}, sprintf('%f', 1)));
 
 end
 
-function test_saveEventsFiles_save_missing_info()
+function test_saveEventsFileSaveMissingInfo()
 
     %% set up
 
@@ -248,11 +243,13 @@ function test_saveEventsFiles_save_missing_info()
 
 end
 
-function test_saveEventsFile_warning_save_array_size()
+function test_saveEventsFileSaveArraySize()
 
     %% set up
 
     [cfg, logFile] = setUp();
+
+    cfg.verbose = 1;
 
     % create the events file and header
     logFile = saveEventsFile('open', cfg, logFile);
@@ -263,10 +260,8 @@ function test_saveEventsFile_warning_save_array_size()
     logFile(end, 1).duration = 3;
     logFile(end, 1).LHL24 = rand(1, 10);
 
-    cfg.verbose = 1;
     assertWarning(@()saveEventsFile('save', cfg, logFile), 'saveEventsFile:missingData');
 
-    cfg.verbose = 0;
     saveEventsFile('save', cfg, logFile);
 
     % ROW 2: too much info (array is too long)
@@ -275,33 +270,7 @@ function test_saveEventsFile_warning_save_array_size()
     logFile(end, 1).duration = 3;
     logFile(end, 1).LHL24 = rand(1, 15);
 
-    cfg.verbose = 1;
     assertWarning(@()saveEventsFile('save', cfg, logFile), 'nanPadding:arrayTooLong');
-
-end
-
-function test_saveEventsFile_save_array_size()
-
-    %% set up
-
-    [cfg, logFile] = setUp();
-
-    % create the events file and header
-    logFile = saveEventsFile('open', cfg, logFile);
-
-    % ROW 1: missing info (array is too short)
-    logFile(1, 1).onset = 5;
-    logFile(end, 1).trial_type = 'jazz';
-    logFile(end, 1).duration = 3;
-    logFile(end, 1).LHL24 = rand(1, 10);
-
-    saveEventsFile('save', cfg, logFile);
-
-    % ROW 2: too much info (array is too long)
-    logFile(1, 1).onset = 5;
-    logFile(end, 1).trial_type = 'blues';
-    logFile(end, 1).duration = 3;
-    logFile(end, 1).LHL24 = rand(1, 15);
 
     saveEventsFile('save', cfg, logFile);
 
@@ -317,7 +286,7 @@ function test_saveEventsFile_save_array_size()
 
 end
 
-function test_saveEventsFile_save_errors()
+function test_saveEventsFileSaveErrors()
 
     %% set up
 

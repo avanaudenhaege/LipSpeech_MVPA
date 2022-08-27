@@ -10,7 +10,8 @@ Welcome to CPP BIDS documentation!
    set_up
    function_description
    utilities
-   ui
+   gui
+   contributing
 
 A set of function for matlab and octave to create
 `BIDS-compatible <https://bids-specification.readthedocs.io/en/stable/>`_
