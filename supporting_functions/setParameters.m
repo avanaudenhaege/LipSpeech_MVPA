@@ -26,7 +26,10 @@ function [cfg] = setParameters()
     %% Engine parameters
     cfg.testingDevice = 'mri';
     cfg.eyeTracker.do = false;
+
+    %% Auditory Stimulation
     cfg.audio.do = true;
+    cfg.audio.channels = 2;
 
     cfg = setMonitor(cfg);
 
@@ -46,9 +49,6 @@ function [cfg] = setParameters()
     cfg.timing.onsetDelay = 2;
     % Number of seconds after the end all the stimuli before ending the run
     cfg.timing.endDelay = 2;
-
-    auditoryCond = 1;
-    visualCond = 2;
 
     % stimXsize = 1920; % never used
     % stimYsize = 1080; % never used
@@ -78,16 +78,14 @@ function [cfg] = setParameters()
     cfg.target.duration = 0.1; % In secs
 
     cfg.extraColumns = {'stim_name', ...
-                        'bloc', ...
+                        'block', ...
                         'modality', ...
                         'repetition', ...
                         'actor', ...
                         'consonant', ...
                         'vowel', ...
                         'target', ...
-                        'keyName', ...
-                        'responsekey', ...
-                        'keypress_time'};
+                        'key_name'};
 
     % define actors and syllables used as stim
     % (S1 = AV, S2 = GH, S3 = JB)
@@ -95,8 +93,8 @@ function [cfg] = setParameters()
     cfg.syllable = {'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'};
 
     if cfg.debug.do
-        cfg.actor = cfg.actor(1:2);
-        cfg.syllable = cfg.syllable(1:3);
+        cfg.actor = cfg.actor(1:3);
+        cfg.syllable = cfg.syllable(1:2);
     end
 
     % variables necessary during randomization

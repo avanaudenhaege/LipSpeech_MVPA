@@ -1,6 +1,7 @@
 % Clear all the previous stuff
 clear;
 clc;
+% cleanUp();
 
 if ~ismac
     close all;
@@ -77,7 +78,7 @@ threeBackBlocksAudio = setdiff(blockPerCond, twoBackBlocksAudio);
 clear tmp;
 
 %% Load stimuli
-talkToMe(cfg, 'Load stimuli:');
+talkToMe(cfg, '\nLoad stimuli:');
 
 % to keep track of stimuli
 myExpTrials = struct;
@@ -98,8 +99,7 @@ for t = 1:length(stimNames)
     myExpTrials(t).actor = myVidStructArray.(stimNames{t})(1).actor;
     [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
                                                                        [myExpTrials(t).stimulusname '.wav']));
-    myExpTrials(t).wavedata = myExpTrials(t).audy';
-    myExpTrials(t).nrchannels = size(myExpTrials(t).wavedata, 1);
+    myExpTrials(t).audioData = myExpTrials(t).audy';
     myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
 end
 
@@ -113,33 +113,11 @@ try
     %% Init the experiment
     cfg = initPTB(cfg);
 
-    % timings in my trial sequence
-    % (substract interFrameInterval/3 to make sure that flipping is done
-    % at 3sec straight and not 1 frame later)
-    cfg.timing.ISI = 3 - cfg.screen.ifi / 6;
-    cfg.timing.frameDuration = 1 / cfg.videoFrameRate - cfg.screen.ifi / 6;
-
-    cfg = postInitializationSetup(cfg);
-
-    talkToMe(cfg, 'turning images into textures.\n');
-    for iStim = 1:numel(stimNames)
-        thisStime = stimNames{iStim};
-        for iFrame = 1:numel(myVidStructArray.(thisStime))
-            myVidStructArray.(thisStime)(iFrame).duration = cfg.timing.frameDuration;  %#ok<*SAGROW>
-            myVidStructArray.(thisStime)(iFrame).imageTexture = Screen('MakeTexture', ...
-                                                                       cfg.screen.win, ...
-                                                                       myVidStructArray.(thisStime)(iFrame).stimImage);
-        end
-    end
-    % add textures to myExpTrials structure
-    for t = 1:length(stimNames)
-        myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
-    end
+    [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStructArray);
 
     unfold(cfg);
 
     % Repetition loop
-
     for rep = 1:nReps
 
         cfg.subject.runNb = rep;
@@ -162,8 +140,13 @@ try
         backTrialsVisual = sort(randperm(cfg.design.nbTrials, v));
         backTrialsAudio = sort(randperm(cfg.design.nbTrials, w));
 
+        % prepare the KbQueue to collect responses
+        getResponse('init', cfg.keyboard.responseBox, cfg);
+
         % blocks correspond to modality, so each 'rep' has 2 blocks = 2 acquisition runs
         for block = 1:nBlocks
+
+            blockStart = GetSecs;
 
             Screen('FillRect', cfg.screen.win, cfg.color.background, cfg.screen.winRect);
 
@@ -195,7 +178,7 @@ try
             logFile = saveEventsFile('init', cfg, logFile);
             logFile = saveEventsFile('open', cfg, logFile);
 
-            % Pseudorandomization made based on syllable vector for the faces
+            % Pseudorandomization made based on syllable vector
             [~, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
             for ind = 1:length(cfg.stimSyll)
                 pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind));
@@ -204,53 +187,65 @@ try
             pseudoRandExpTrialsBack = addNback(cfg, pseudorandExpTrials, backTrials, r);
 
             standByScreen(cfg);
-            talkToMe('WAITING FOR TRIGGER (instructions displayed on the screen) \n');
+            talkToMe(cfg, '\nWAITING FOR TRIGGER (instructions displayed on the screen)\n\n');
             waitForTrigger(cfg);
 
-            talkToMe(sprintf('Number of targets in coming trial: %i', num2str(r)));
+            talkToMe(cfg, sprintf('\nNumber of targets in coming trial: %i\n', r));
 
-            % prepare the KbQueue to collect responses
-            getResponse('init', cfg.keyboard.responseBox, cfg);
+            cfg.experimentStart = GetSecs();
 
-            %% Experiment Start
-            cfg = getExperimentStart(cfg);
-
+            getResponse('flush', cfg.keyboard.responseBox);
             getResponse('start', cfg.keyboard.responseBox);
 
             for iTrial = 1:(cfg.design.nbTrials + r)
 
-                fprintf('\n - Running trial %.0f \n', iTrial);
+                talkToMe(cfg, sprintf('\n - Running trial %.0f \n', iTrial));
 
                 %  Check for experiment abortion from operator
                 checkAbort(cfg, cfg.keyboard.keyboard);
 
+                thisEvent.event = iTrial;
+                thisEvent.key_name = 'n/a';
+                thisEvent.modality = modality;
+                thisEvent.block = block;
+                thisEvent.repetition = rep;
+                thisEvent.target = pseudoRandExpTrialsBack(iTrial).trialtype;
+                thisEvent.stim_name = pseudoRandExpTrialsBack(iTrial).stimulusname;
+                thisEvent.actor = pseudoRandExpTrialsBack(iTrial).actor;
+                thisEvent.consonant = pseudoRandExpTrialsBack(iTrial).syllable(1);
+                thisEvent.vowel = pseudoRandExpTrialsBack(iTrial).syllable(2);
+                thisEvent.audioData = pseudoRandExpTrialsBack(iTrial).audioData;
+                thisEvent.visualData = pseudoRandExpTrialsBack(iTrial).visualstimuli;
+
                 switch modality
                     case 'vis'
+                        instruction = 'Faites attention aux LEVRES';
+                    case 'aud'
+                        instruction = 'Faites attention aux VOIX';
+                end
 
-                        if iTrial == 1
-                            DrawFormattedText(cfg.screen.win, ...
-                                              'Faites attention aux LEVRES', ...
-                                              'center', ...
-                                              'center', ...
-                                              cfg.text.color);
-                            Screen('Flip', cfg.screen.win);
-                            WaitSecs(0.5);
-                        else
-                            Screen('FillRect', cfg.screen.win, cfg.color.background);
-                            Screen('Flip', cfg.screen.win);
-                        end
+                if iTrial == 1
+                    DrawFormattedText(cfg.screen.win, ...
+                                      instruction, ...
+                                      'center', ...
+                                      'center', ...
+                                      cfg.text.color);
+                    Screen('Flip', cfg.screen.win);
+                    WaitSecs(0.5);
+                end
 
-                        lastEventTime = GetSecs;
+                Screen('FillRect', cfg.screen.win, cfg.color.background);
+                [~, ~, lastEventTime] = Screen('Flip', cfg.screen.win);
+
+                switch modality
+                    case 'vis'
 
                         % frames presentation loop
                         for f = 1:cfg.nbFrames
 
                             Screen('DrawTexture', ...
                                    cfg.screen.win, ...
-                                   pseudoRandExpTrialsBack(iTrial).visualstimuli(f).imageTexture, ...
-                                   [], ...
-                                   [], ...
-                                   0);
+                                   thisEvent.visualData(f).imageTexture);
                             [vbl, ~, lastEventTime, missed] = Screen('Flip', ...
                                                                      cfg.screen.win, ...
                                                                      lastEventTime + cfg.timing.frameDuration);
@@ -264,60 +259,65 @@ try
 
                         offset = vbl;
 
-                        % clear last frame
-                        Screen('FillRect', cfg.screen.win, cfg.color.background);
-
-                        % ISI
-                        [~, ~, ISIend] = Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
-                        % fb about duration in cw
-                        disp(strcat('Timing trial  ', num2str(iTrial), ...
-                                    '- the duration was :', num2str(offset - onset), ' sec'));
-                        % fb about duration in cw
-                        disp(strcat('Timing ISI - the duration was :', num2str(ISIend - offset), ' sec'));
-
                     case 'aud'
+
+                        % Fill the audio playback buffer with the audio data:
+                        PsychPortAudio('FillBuffer', cfg.audio.pahandle, thisEvent.audioData);
+
+                        % Start audio playback
+                        % 'repetitions' repetitions of the sound data,
+                        % start it immediately (0)
+                        % wait for the playback to start,
+                        % return onset timestamp.
+                        repetitions = 1;
+                        when = 0;
+                        waitForPlaybackStart = 1;
+                        onset = PsychPortAudio('Start', cfg.audio.pahandle, repetitions, when, waitForPlaybackStart);
+
+                        status.Active = true;
+                        while status.Active
+                            status = PsychPortAudio('GetStatus', cfg.audio.pahandle);
+                        end
+                        [~, ~, ~, offset] = PsychPortAudio('Stop', cfg.audio.pahandle);
 
                 end
 
-                %
-                %         [thisEvent, thisFixation, cfg] = preTrialSetup(cfg, iBlock, iTrial);
-                %
-                %         % play the dots and collect onset and duraton of the event
-                %         [onset, duration] = doTrial(cfg, thisEvent, thisFixation);
-                %
+                % clear last frame
+                Screen('FillRect', cfg.screen.win, cfg.color.background);
 
-                thisEvent.event = iTrial;
-                thisEvent.keyName = 'n/a';
+                % ISI
+                [~, ~, ISIend] = Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
+                % fb about duration in cw
+                talkToMe(cfg, sprintf('\nTiming ISI - the duration was: %f sec\n', ISIend - offset));
+
                 thisEvent.duration = offset - onset;
                 thisEvent.onset = onset - cfg.experimentStart;
-                thisEvent.modality = modality;
-                thisEvent.bloc = '?';
-                thisEvent.repetition = '?';
-                thisEvent.target = pseudoRandExpTrialsBack(iTrial).trialtype;
-                thisEvent.stim_name = pseudoRandExpTrialsBack(iTrial).stimulusname;
-                thisEvent.actor = pseudoRandExpTrialsBack(iTrial).actor;
-                thisEvent.consonant = pseudoRandExpTrialsBack(iTrial).syllable(1);
-                thisEvent.vowel = pseudoRandExpTrialsBack(iTrial).syllable(2);
 
-                % Save the events txt logfile
+                %% Save the events to the logfile
                 % we save event by event so we clear this variable every loop
                 thisEvent.isStim = logFile.isStim;
                 thisEvent.fileID = logFile.fileID;
                 thisEvent.extraColumns = logFile.extraColumns;
                 saveEventsFile('save', cfg, thisEvent);
 
-                % collect the responses and appends to the event structure for
-                % saving in the tsv file
+                %% Collect and saves the responses
                 responseEvents = getResponse('check', cfg.keyboard.responseBox, cfg);
-                responseEvents.isStim = false;
-                responseEvents(1).fileID = logFile.fileID;
-                responseEvents(1).extraColumns = logFile.extraColumns;
+                if isfield(responseEvents(1), 'onset') && ~isempty(responseEvents(1).onset)
+                    for iResp = 1:size(responseEvents, 1)
+                        responseEvents(iResp).onset = ...
+                            responseEvents(iResp).onset - cfg.experimentStart;
+                        responseEvents(iResp).key_name = responseEvents(iResp).keyName;
+                    end
+                    responseEvents(1).isStim = false;
+                    responseEvents(1).fileID = logFile.fileID;
+                    responseEvents(1).extraColumns = logFile.extraColumns;
 
-                saveEventsFile('save', cfg, responseEvents);
+                    saveEventsFile('save', cfg, responseEvents);
+                end
 
             end
 
-            % End of the run for the BOLD to go down
+            % End of the run
             waitFor(cfg, cfg.timing.endDelay);
 
             getResponse('stop', cfg.keyboard.responseBox);
@@ -325,6 +325,10 @@ try
             % Close the logfiles
             saveEventsFile('close', cfg, logFile);
             createJson(cfg, cfg);
+
+            blockEnd = GetSecs;
+            blockDur = blockEnd - blockStart;
+            talkToMe(sprintf('\nTotal block duration: %f\n', blockDur));
 
         end
 
@@ -334,7 +338,7 @@ try
 
     getResponse('release', cfg.keyboard.responseBox);
 
-    farewellScreen(cfg);
+    farewellScreen(cfg, 'Fin de l''experience :)\nMERCI !');
 
     cleanUp();
 
