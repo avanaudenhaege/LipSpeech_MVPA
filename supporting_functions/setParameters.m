@@ -9,7 +9,7 @@ function [cfg] = setParameters()
 
     cfg.expName = 'LipSpeechMVPA';
 
-    cfg.dir.root = fileparts(mfilename('fullpath'));
+    cfg.dir.root = bids.internal.file_utils(fullfile(fileparts(mfilename('fullpath')), '..'), 'cpath');
     cfg.dir.stimuli = fullfile(cfg.dir.root, 'stimuli');
     cfg.dir.output = fullfile(cfg.dir.root, 'data');
 
@@ -94,7 +94,7 @@ function [cfg] = setParameters()
     cfg.syllable = {'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'};
 
     if cfg.debug.do
-        cfg.actor = cfg.actor(1);
+        cfg.actor = cfg.actor(1:2);
         cfg.syllable = cfg.syllable(1:3);
     end
 

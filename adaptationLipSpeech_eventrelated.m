@@ -284,7 +284,7 @@ try
             fclose(fid);
 
             % Pseudorandomization made based on syllable vector for the faces
-            [pseudoSyllVector, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
+            [~, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
             for ind = 1:length(cfg.stimSyll)
                 myExpTrials(pseudoSyllIndex(ind)).pseudorandindex = ind;
             end

@@ -39,18 +39,19 @@ end
 % 2 = visual
 firstCondition = input('START WITH MODALITY ... ? (AUD=1 or VIS=2) :');
 
-% if error while encoding firstCondition, exp will start with AUD MODALITY
-firstCondition = 1;
-secondCondition = 2;
 if firstCondition == 1
     secondCondition = 2;
 elseif firstCondition == 2
     secondCondition = 1;
+else
+    % if error while encoding firstCondition, exp will start with AUD MODALITY
+    firstCondition = 1;
+    secondCondition = 2;
 end
 
 orderCondVector = [firstCondition, secondCondition];
 
-% ADD TARFGET TRIALS
+% ADD TARGET TRIALS
 % vector with # of blocks per condition
 % (if 5 reps, you have 5 blocks for each condition)
 blockPerCond = 1:nReps;
@@ -192,8 +193,87 @@ try
             logFile = saveEventsFile('init', cfg, logFile);
             logFile = saveEventsFile('open', cfg, logFile);
 
+            % Pseudorandomization made based on syllable vector for the faces
+            [~, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
+            for ind = 1:length(cfg.stimSyll)
+                pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind));
+            end
+
+            % add 1-back trials for current block type %
+            pseudoRandExpTrialsBack = pseudorandExpTrials;
+
+            for b = 1:(length(cfg.stimSyll) + r)
+
+                if b <= backTrials(1)
+                    pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b);
+
+                    % this trial will be a target
+                    % (repetition of the previous syllable - different actor)
+                elseif b == backTrials(1) + 1
+                    % find where the same-syll-different-actor rows are %
+                    syllVector = {pseudorandExpTrials.syllable};
+                    syllRepeated = {pseudorandExpTrials(backTrials(1)).syllable};
+                    syllTF = ismember(syllVector, syllRepeated);
+                    syllIndices = find(syllTF);
+                    syllIndices(syllIndices == (b - 1)) = []; % get rid of current actor
+                    % and choose randomly among the others
+                    syllIndices;
+                    pseudoRandExpTrialsBack(b) = pseudorandExpTrials(randsample(syllIndices, 1));
+                    % add 1 in trialtype column
+                    pseudoRandExpTrialsBack(b).trialtype = 1;
+
+                    % this trial will have a repeated emotion but a different actor
+                elseif b == backTrials(2) + 2
+                    % find where the same-emotion-different-actor rows are %
+                    syllVector = {pseudorandExpTrials.syllable};
+                    syllRepeated = {pseudorandExpTrials(backTrials(2)).syllable};
+                    syllTF = ismember(syllVector, syllRepeated);
+                    syllIndices = find(syllTF);
+                    syllIndices(syllIndices == b - 2) = []; % get rid of current actor
+                    % and choose randomly among the others
+                    pseudoRandExpTrialsBack(b) = pseudorandExpTrials(randsample(syllIndices, 1));
+                    % add 1 in trialtype column
+                    pseudoRandExpTrialsBack(b).trialtype = 1;
+
+                elseif b > backTrials(1) + 1 && b < backTrials(2) + 2
+                    pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b - 1);
+                end
+                if r == 2
+
+                    if b > backTrials(2) + 2
+                        pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b - 2);
+
+                    end
+
+                elseif r == 3
+
+                    % this trial will have a repeated emotion but a different actor
+                    if b == backTrials(3) + 3
+                        % find where the same-emotion-different-actor rows are %
+                        syllVector = {pseudorandExpTrials.syllable};
+                        syllRepeated = {pseudorandExpTrials(backTrials(3)).syllable};
+                        syllTF = ismember(syllVector, syllRepeated);
+                        syllIndices = find(syllTF);
+                        syllIndices(syllIndices == b - 3) = []; % get rid of current actor
+                        % and choose randomly among the others
+                        pseudoRandExpTrialsBack(b) = pseudorandExpTrials(randsample(syllIndices, 1));
+                        % add 1 in trialtype column
+                        pseudoRandExpTrialsBack(b).trialtype = 1;
+
+                    elseif b > backTrials(2) + 2 && b < backTrials(3) + 3
+                        pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b - 2);
+
+                    elseif b > backTrials(3) + 3
+                        pseudoRandExpTrialsBack(b) = pseudorandExpTrials(b - 3);
+
+                    end
+                end
+            end
+
             % Show experiment instruction
             standByScreen(cfg);
+
+            talkToMe('WAITING FOR TRIGGER (- instructions displayed on the screen) \n');
 
             % prepare the KbQueue to collect responses
             getResponse('init', cfg.keyboard.responseBox, cfg);
