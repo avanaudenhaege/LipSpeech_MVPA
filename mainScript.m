@@ -28,6 +28,9 @@ nReps = input('NUMBER OF REPETITIONS :');
 if isempty(nReps)
     nReps = 10;
 end
+if cfg.debug.do
+    nReps = 2;
+end
 
 %% define order of modalities within a subject
 
@@ -36,13 +39,13 @@ end
 % 2 = visual
 firstCondition = input('START WITH MODALITY ... ? (AUD=1 or VIS=2) :');
 
+% if error while encoding firstCondition, exp will start with AUD MODALITY
+firstCondition = 1;
+secondCondition = 2;
 if firstCondition == 1
     secondCondition = 2;
 elseif firstCondition == 2
     secondCondition = 1;
-else % if error while encoding firstCondition, exp will start with AUD MODALITY
-    firstCondition = 1;
-    secondCondition = 2;
 end
 
 orderCondVector = [firstCondition, secondCondition];
@@ -131,6 +134,8 @@ try
         myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
     end
 
+    unfold(cfg);
+
     % Repetition loop
 
     for rep = 1:nReps
@@ -153,7 +158,7 @@ try
 
         % and choose randomly which trial will be repeated in this block (if any)
         backTrialsVisual = sort(randperm(cfg.design.nbTrials, v));
-        backTrialsAudio = sort(randperm(cfg.design.nbTrials, w));        
+        backTrialsAudio = sort(randperm(cfg.design.nbTrials, w));
 
         % blocks correspond to modality, so each 'rep' has 2 blocks = 2 acquisition runs
         for block = 1:nBlocks
@@ -163,7 +168,7 @@ try
             DrawFormattedText(cfg.screen.win, ...
                               cfg.task.instruction, ...
                               'center', 'center', cfg.text.color);
-        
+
             Screen('Flip', cfg.screen.win);
 
             blockModality = orderCondVector(block);
@@ -175,18 +180,17 @@ try
                 r = w;
                 backTrials = backTrialsAudio;
                 modality = 'aud';
-            end            
-            
+            end
+
             cfg.task.name = [cfg.expName modality];
+            cfg.fileName.task = cfg.task.name;
 
             cfg = createFilename(cfg);
 
             % Prepare for the output logfiles with all
             logFile.extraColumns = cfg.extraColumns;
-            logFile = saveEventsFile('init', cfg, logFile)
+            logFile = saveEventsFile('init', cfg, logFile);
             logFile = saveEventsFile('open', cfg, logFile);
-
-            disp(cfg);
 
             % Show experiment instruction
             standByScreen(cfg);
@@ -225,10 +229,10 @@ try
                 %         % collect the responses and appends to the event structure for
                 %         % saving in the tsv file
                 responseEvents = getResponse('check', cfg.keyboard.responseBox, cfg);
-                %
-                %         responseEvents(1).fileID = logFile.fileID;
-                %         responseEvents(1).extraColumns = logFile.extraColumns;
-                %         saveEventsFile('save', cfg, responseEvents);
+                responseEvents.isStim = false;
+                responseEvents(1).fileID = logFile.fileID;
+                responseEvents(1).extraColumns = logFile.extraColumns;
+                saveEventsFile('save', cfg, responseEvents);
                 %
                 %         waitFor(cfg, cfg.timing.ISI);
                 %
