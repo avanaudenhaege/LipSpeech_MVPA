@@ -1,3 +1,0 @@
-octave
-liboctave-dev
-tree
