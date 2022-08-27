@@ -1,0 +1,82 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "CerenB",
+      "name": "CerenB",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10451654?v=4",
+      "profile": "https://github.com/CerenB",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "userTesting",
+        "ideas",
+        "bug"
+      ]
+    },
+    {
+      "login": "marcobarilari",
+      "name": "marcobarilari",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/38101692?v=4",
+      "profile": "https://github.com/marcobarilari",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "userTesting",
+        "ideas",
+        "bug"
+      ]
+    },
+    {
+      "login": "Remi-Gau",
+      "name": "Remi Gau",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/6961185?v=4",
+      "profile": "https://remi-gau.github.io/",
+      "contributions": [
+        "code",
+        "design",
+        "doc",
+        "bug",
+        "userTesting",
+        "ideas",
+        "infra",
+        "maintenance",
+        "test",
+        "question"
+      ]
+    },
+    {
+      "login": "TomasLenc",
+      "name": "Tomas Lenc",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/10827440?v=4",
+      "profile": "https://github.com/TomasLenc",
+      "contributions": [
+        "code",
+        "ideas",
+        "test"
+      ]
+    },
+    {
+      "login": "iqrashahzad14",
+      "name": "iqrashahzad14",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75671348?v=4",
+      "profile": "https://github.com/iqrashahzad14",
+      "contributions": [
+        "bug",
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "CPP_BIDS",
+  "projectOwner": "cpp-lln-lab",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": false
+}
