@@ -2,9 +2,8 @@
 
 function [cfg] = setParameters()
 
-    % Template PTB experiment
-
     % Initialize the parameters and general configuration variables
+
     cfg = struct();
 
     cfg.expName = 'LipSpeechMVPA';

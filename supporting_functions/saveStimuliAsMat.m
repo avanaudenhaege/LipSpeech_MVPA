@@ -3,6 +3,8 @@ function saveStimuliAsMat()
     % loads images of all requested stimuli and saves them as a mat file
     %
 
+    % TODO make saving optional?
+
     cfg = setParameters();
 
     fprintf('Preparing frame structures for each video \n');

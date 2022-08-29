@@ -1,18 +1,7 @@
-%
-% 1 - Check if version requirements
-% are satisfied and the packages are
-% are installed/loaded:
-%   Octave > 4
-%       - image
-%       - optim
-%       - struct
-%       - statistics
-%
-%   MATLAB >= R2015b
-%
-% 2 - Add project to the O/M path
-
-function initEnv
+function initEnv()
+    % initialize environment
+    % checks that all the required libraries are installed
+    % adds them to the path
 
     octaveVersion = '4.0.3';
     matlabVersion = '8.6.0';
