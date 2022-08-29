@@ -144,7 +144,7 @@ try
             Screen('FillRect', cfg.screen.win, cfg.color.background, cfg.screen.winRect);
 
             DrawFormattedText(cfg.screen.win, ...
-                              cfg.task.instruction, ...
+                              cfg.task.instructions, ...
                               'center', 'center', cfg.text.color);
 
             Screen('Flip', cfg.screen.win);
@@ -180,7 +180,7 @@ try
             pseudoRandExpTrialsBack = addNback(cfg, pseudorandExpTrials, backTrials, r);
 
             standByScreen(cfg);
-            talkToMe(cfg, '\nWAITING FOR TRIGGER (instructions displayed on the screen)\n\n');
+            talkToMe(cfg, '\nWAITING FOR TRIGGER (Instructions displayed on the screen)\n\n');
             waitForTrigger(cfg);
 
             talkToMe(cfg, sprintf('\nNumber of targets in coming trial: %i\n', r));
