@@ -18,9 +18,6 @@ cfg = userInputs(cfg);
 
 %% DESIGN
 
-auditoryCond = 1;
-visualCond = 2;
-
 % num of different blocks (= different acquisition runs) per rep --> one per modality
 nBlocks = 2;
 
@@ -33,24 +30,20 @@ if cfg.debug.do
     nReps = 2;
 end
 
-%% define order of modalities within a subject
+%% order of modalities within a subject
+% modality orded will be fixed within participant, and balanced across
+auditoryCond = 1;
+visualCond = 2;
 
-% modality orded will be fixed within participant, and balanced across %
-% 1 = auditory,
-% 2 = visual
 firstCondition = input('START WITH MODALITY ... ? (AUD=1 or VIS=2) :');
 
 if firstCondition == 1
-    secondCondition = 2;
+    orderCondVector = [auditoryCond, visualCond];
 elseif firstCondition == 2
-    secondCondition = 1;
+    orderCondVector = [visualCond, auditoryCond];
 else
-    % if error while encoding firstCondition, exp will start with AUD MODALITY
-    firstCondition = 1;
-    secondCondition = 2;
+    orderCondVector = [auditoryCond, visualCond];
 end
-
-orderCondVector = [firstCondition, secondCondition];
 
 % ADD TARGET TRIALS
 % vector with # of blocks per condition
@@ -93,12 +86,12 @@ stimNames = fieldnames(myVidStructArray);
 
 talkToMe(cfg, '\n audio');
 for t = 1:length(stimNames)
-    myExpTrials(t).stimulusname = stimNames{t};
-    myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
+    myExpTrials(t).stimulusName = stimNames{t};
+    myExpTrials(t).visualStimuli = myVidStructArray.(stimNames{t});
     myExpTrials(t).syllable = myVidStructArray.(stimNames{t})(1).syllable;
     myExpTrials(t).actor = myVidStructArray.(stimNames{t})(1).actor;
     [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
-                                                                       [myExpTrials(t).stimulusname '.wav']));
+                                                                       [myExpTrials(t).stimulusName '.wav']));
     myExpTrials(t).audioData = myExpTrials(t).audy';
     myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
 end
@@ -210,12 +203,12 @@ try
                 thisEvent.block = block;
                 thisEvent.repetition = rep;
                 thisEvent.target = pseudoRandExpTrialsBack(iTrial).trialtype;
-                thisEvent.stim_name = pseudoRandExpTrialsBack(iTrial).stimulusname;
+                thisEvent.stim_file = pseudoRandExpTrialsBack(iTrial).stimulusName;
                 thisEvent.actor = pseudoRandExpTrialsBack(iTrial).actor;
                 thisEvent.consonant = pseudoRandExpTrialsBack(iTrial).syllable(1);
                 thisEvent.vowel = pseudoRandExpTrialsBack(iTrial).syllable(2);
                 thisEvent.audioData = pseudoRandExpTrialsBack(iTrial).audioData;
-                thisEvent.visualData = pseudoRandExpTrialsBack(iTrial).visualstimuli;
+                thisEvent.visualData = pseudoRandExpTrialsBack(iTrial).visualStimuli;
 
                 switch modality
                     case 'vis'
@@ -240,6 +233,8 @@ try
                 switch modality
                     case 'vis'
 
+                        thisEvent.stim_file = [thisEvent.stim_file '*.png'];
+
                         % frames presentation loop
                         for f = 1:cfg.nbFrames
 
@@ -260,6 +255,8 @@ try
                         offset = vbl;
 
                     case 'aud'
+
+                        thisEvent.stim_file = [thisEvent.stim_file '.wav'];
 
                         % Fill the audio playback buffer with the audio data:
                         PsychPortAudio('FillBuffer', cfg.audio.pahandle, thisEvent.audioData);

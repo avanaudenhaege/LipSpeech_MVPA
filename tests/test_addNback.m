@@ -21,8 +21,8 @@ function test_addNback_basic()
     stimNames = fieldnames(myVidStructArray);
 
     for t = 1:length(stimNames)
-        expTrials(t).stimulusname = stimNames{t};
-        expTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
+        expTrials(t).stimulusName = stimNames{t};
+        expTrials(t).visualStimuli = myVidStructArray.(stimNames{t});
         expTrials(t).syllable = myVidStructArray.(stimNames{t}).syllable;
         expTrials(t).trialtype = 0;
     end

@@ -24,7 +24,7 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
     end
     % add textures to myExpTrials structure
     for t = 1:length(stimNames)
-        myExpTrials(t).visualstimuli = myVidStructArray.(stimNames{t});
+        myExpTrials(t).visualStimuli = myVidStructArray.(stimNames{t});
     end
 
 end
