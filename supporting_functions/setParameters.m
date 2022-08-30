@@ -33,7 +33,7 @@ function [cfg] = setParameters()
     %% Task(s)
 
     % Instruction
-    cfg.task.instructions = 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee';
+    cfg.task.instruction = 'TACHE\n Appuyez quand une syllabe est repetee deux fois d''affilee';
 
     cfg = setMonitor(cfg);
 
@@ -129,7 +129,7 @@ function cfg = setMRI(cfg)
 
     cfg.mri.repetitionTime = 1.75;
 
-    cfg.bids.MRI.Instructionss = cfg.task.instructions;
+    cfg.bids.MRI.Instructions = cfg.task.instruction;
     cfg.bids.MRI.TaskDescription = ['One-back task.', ...
                                     'The participant is asked to press a button, ', ...
                                     'when he/she sees a repeated syllable independently of the actor.', ...

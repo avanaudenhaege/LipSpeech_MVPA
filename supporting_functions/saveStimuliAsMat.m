@@ -9,7 +9,6 @@ function saveStimuliAsMat()
 
     fprintf('Preparing frame structures for each video \n');
 
-    myVidStructArray = {};
     for a = 1:length(cfg.actor)
         for s = 1:length(cfg.syllable)
             myVidStructArray.([cfg.actor{a}, cfg.syllable{s}]) = loadImages(cfg, ...
