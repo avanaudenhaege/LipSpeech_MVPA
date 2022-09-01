@@ -43,14 +43,11 @@ function [cfg] = setParameters()
     % MRI settings
     cfg = setMRI(cfg);
 
-    cfg.pacedByTriggers.do = false;
-
     %% Experiment Design
 
     % Time between events in secs
     cfg.timing.ISI = 1;
-    % Number of seconds before the motion stimuli are presented
-    cfg.timing.onsetDelay = 2;
+
     % Number of seconds after the end all the stimuli before ending the run
     cfg.timing.endDelay = 2;
 
@@ -63,18 +60,6 @@ function [cfg] = setParameters()
     cfg.nbFrames = cfg.videoFrameRate * cfg.vidDuration;
 
     cfg.subject.ask = {'ses'};
-
-    % Fixation cross (in pixels)
-    cfg.fixation.type = 'cross';
-    cfg.fixation.colorTarget = cfg.color.red;
-    cfg.fixation.color = cfg.color.white;
-    cfg.fixation.width = .25;
-    cfg.fixation.lineWidthPix = 3;
-    cfg.fixation.xDisplacement = 0;
-    cfg.fixation.yDisplacement = 0;
-
-    cfg.target.maxNbPerBlock = 1;
-    cfg.target.duration = 0.1; % In secs
 
     cfg.extraColumns = {'stim_file', ...
                         'block', ...
