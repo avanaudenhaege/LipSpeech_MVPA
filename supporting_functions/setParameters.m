@@ -47,8 +47,6 @@ function [cfg] = setParameters()
     % MRI settings
     cfg = setMRI(cfg);
 
-    cfg.pacedByTriggers.do = false;
-
     %% Experiment Design
 
     % Time between events in secs
@@ -66,18 +64,6 @@ function [cfg] = setParameters()
     cfg.nbFrames = cfg.videoFrameRate * cfg.vidDuration;
 
     cfg.subject.ask = {'ses'};
-
-    % Fixation cross (in pixels)
-    cfg.fixation.type = 'cross';
-    cfg.fixation.colorTarget = cfg.color.red;
-    cfg.fixation.color = cfg.color.white;
-    cfg.fixation.width = .25;
-    cfg.fixation.lineWidthPix = 3;
-    cfg.fixation.xDisplacement = 0;
-    cfg.fixation.yDisplacement = 0;
-
-    cfg.target.maxNbPerBlock = 1;
-    cfg.target.duration = 0.1; % In secs
 
     cfg.extraColumns = {'stim_file', ...
                         'block', ...
@@ -160,8 +146,8 @@ function cfg = setMonitor(cfg)
     cfg.screen.monitorDistance = 40; % distance from the screen in cm
 
     if strcmpi(cfg.testingDevice, 'mri')
-        cfg.screen.monitorWidth = 25;
-        cfg.screen.monitorDistance = 95;
+        cfg.screen.monitorWidth = 69.8;
+        cfg.screen.monitorDistance = 170;
     end
 
 end

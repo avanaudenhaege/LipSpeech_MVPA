@@ -3,6 +3,8 @@ clear;
 clc;
 % cleanUp();
 
+more off;
+
 if ~ismac
     close all;
     clear Screen;
@@ -320,7 +322,7 @@ try
             end
 
             % End of the run
-            waitFor(cfg, cfg.timing.endDelay);
+            WaitSecs(cfg.timing.endDelay);
 
             getResponse('stop', cfg.keyboard.responseBox);
 
