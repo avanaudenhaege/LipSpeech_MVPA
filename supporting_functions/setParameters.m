@@ -14,13 +14,13 @@ function [cfg] = setParameters()
 
     %% Debug mode settings
 
-    cfg.debug.do = true; % To test the script out of the scanner, skip PTB sync
+    cfg.debug.do = false; % To test the script out of the scanner, skip PTB sync
     cfg.debug.smallWin = false; % To test on a part of the screen, change to 1
-    cfg.debug.transpWin = true; % To test with trasparent full size screen
+    cfg.debug.transpWin = false; % To test with trasparent full size screen
 
     cfg.verbose = 1;
 
-    cfg.skipSyncTests = 0;
+    cfg.skipSyncTests = 1;
 
     %% Engine parameters
     cfg.testingDevice = 'mri';
@@ -29,6 +29,10 @@ function [cfg] = setParameters()
     %% Auditory Stimulation
     cfg.audio.do = true;
     cfg.audio.channels = 2;
+     cfg.audio.fs = 44100;
+    if IsWin
+        cfg.audio.fs = 48000;
+    end
 
     %% Task(s)
 
@@ -48,9 +52,8 @@ function [cfg] = setParameters()
     %% Experiment Design
 
     % Time between events in secs
-    cfg.timing.ISI = 1;
-    % Number of seconds before the motion stimuli are presented
-    cfg.timing.onsetDelay = 2;
+    % cfg.timing.ISI is defined after initPTB
+
     % Number of seconds after the end all the stimuli before ending the run
     cfg.timing.endDelay = 2;
 
@@ -93,7 +96,7 @@ function [cfg] = setParameters()
 
     if cfg.debug.do
         cfg.actor = cfg.actor(1:3);
-        cfg.syllable = cfg.syllable(1:2);
+%         cfg.syllable = cfg.syllable(1:2);
     end
 
     % variables necessary during randomization
@@ -148,7 +151,9 @@ function cfg = setMonitor(cfg)
     cfg.color.red = [255 0 0];
     cfg.color.grey = mean([cfg.color.black; cfg.color.white]);
     cfg.color.background = cfg.color.black;
+    
     cfg.text.color = cfg.color.white;
+    cfg.text.size = 48;
 
     % Monitor parameters
     cfg.screen.monitorWidth = 50; % in cm

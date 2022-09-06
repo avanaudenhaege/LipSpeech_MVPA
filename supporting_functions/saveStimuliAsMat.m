@@ -1,4 +1,4 @@
-function saveStimuliAsMat()
+function myVidStructArray = saveStimuliAsMat()
     %
     % loads images of all requested stimuli and saves them as a mat file
     %
@@ -19,6 +19,6 @@ function saveStimuliAsMat()
 
     stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 
-    save(stimuliMatFile, 'myVidStructArray', '-v7');
+    save(stimuliMatFile, 'myVidStructArray', '-v7.3');
 
 end

@@ -76,6 +76,8 @@ talkToMe(cfg, '\nLoad stimuli:');
 % to keep track of stimuli
 myExpTrials = struct;
 
+tic
+
 talkToMe(cfg, '\n visual');
 stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 if ~exist(stimuliMatFile, 'file')
@@ -83,6 +85,8 @@ if ~exist(stimuliMatFile, 'file')
 end
 load(stimuliMatFile, 'myVidStructArray');
 stimNames = fieldnames(myVidStructArray);
+
+toc
 
 talkToMe(cfg, '\n audio');
 for t = 1:length(stimNames)
@@ -204,6 +208,7 @@ try
                 thisEvent.repetition = rep;
                 thisEvent.target = pseudoRandExpTrialsBack(iTrial).trialtype;
                 thisEvent.stim_file = pseudoRandExpTrialsBack(iTrial).stimulusName;
+                thisEvent.trial_type = thisEvent.stim_file;
                 thisEvent.actor = pseudoRandExpTrialsBack(iTrial).actor;
                 thisEvent.consonant = pseudoRandExpTrialsBack(iTrial).syllable(1);
                 thisEvent.vowel = pseudoRandExpTrialsBack(iTrial).syllable(2);
@@ -252,7 +257,7 @@ try
 
                         end
 
-                        offset = vbl;
+                        offset = vbl + cfg.timing.frameDuration;
 
                     case 'aud'
 
