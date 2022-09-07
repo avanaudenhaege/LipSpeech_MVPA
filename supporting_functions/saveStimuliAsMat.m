@@ -7,7 +7,7 @@ function myVidStructArray = saveStimuliAsMat()
 
     cfg = setParameters();
 
-    fprintf('Preparing frame structures for each video \n');
+    fprintf('\nPreparing frame structures for each video \n');
 
     for a = 1:length(cfg.actor)
         for s = 1:length(cfg.syllable)
@@ -19,6 +19,10 @@ function myVidStructArray = saveStimuliAsMat()
 
     stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 
-    save(stimuliMatFile, 'myVidStructArray', '-v7.3');
+    try
+        save(stimuliMatFile, 'myVidStructArray', '-v7.3');
+    catch
+        save(stimuliMatFile, 'myVidStructArray', '-v7');
+    end
 
 end

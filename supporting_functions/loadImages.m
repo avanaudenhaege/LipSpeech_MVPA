@@ -15,14 +15,21 @@ function [structureName] = loadImages(cfg, actor, syllable)
 
     fprintf('\nloading %s', [actor syllable]);
 
-    allImages = bids.internal.file_utils('FPList', cfg.dir.stimuli, ['^' actor syllable '.*.png$']);
+    allImages = bids.internal.file_utils('FPList', cfg.dir.stimuli, ['^' actor syllable '.*' cfg.video.ext '$']);
 
     for i = 1:cfg.nbFrames
         thisImage = deblank(allImages(i, :));
         structureName(i).actor = actor;
         structureName(i).syllable = syllable;
         structureName(i).stimFilename = bids.internal.file_utils(thisImage, 'filename');
-        structureName(i).stimImage = imread(thisImage);
+        
+        stimImage = imread(thisImage);
+        if ~isa(stimImage, 'uint8')
+          warning('This image does not load to uint8 datatype:\n%s', thisImage)
+          stimImage = uint8(stimImage);
+        end
+        structureName(i).stimImage = stimImage;
+        
     end
 
 end

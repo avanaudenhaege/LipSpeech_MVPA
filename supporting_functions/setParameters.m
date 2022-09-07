@@ -30,7 +30,7 @@ function [cfg] = setParameters()
     cfg.audio.do = true;
     cfg.audio.channels = 2;
      cfg.audio.fs = 44100;
-    if IsWin
+    if ispc
         cfg.audio.fs = 48000;
     end
 
@@ -57,6 +57,8 @@ function [cfg] = setParameters()
 
     % stimXsize = 1920; % never used
     % stimYsize = 1080; % never used
+
+    cfg.video.ext = '.jpg';
 
     cfg.vidDuration = 2;
     cfg.videoFrameRate = 25;

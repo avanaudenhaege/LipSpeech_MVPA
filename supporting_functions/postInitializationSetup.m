@@ -17,9 +17,10 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
         thisStime = stimNames{iStim};
         for iFrame = 1:numel(myVidStructArray.(thisStime))
             myVidStructArray.(thisStime)(iFrame).duration = cfg.timing.frameDuration;  %#ok<*SAGROW>
+            stimImage = myVidStructArray.(thisStime)(iFrame).stimImage;
             myVidStructArray.(thisStime)(iFrame).imageTexture = Screen('MakeTexture', ...
                                                                        cfg.screen.win, ...
-                                                                       myVidStructArray.(thisStime)(iFrame).stimImage);
+                                                                       stimImage);
         end
     end
     % add textures to myExpTrials structure
