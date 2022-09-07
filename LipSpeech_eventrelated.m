@@ -238,8 +238,9 @@ try
                     Screen('Flip', cfg.screen.win);
                     WaitSecs(0.5);
                 end
-
+                
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
+                drawFixation(cfg);
                 [~, ~, lastEventTime] = Screen('Flip', cfg.screen.win);
 
                 switch modality
@@ -293,6 +294,7 @@ try
 
                 % clear last frame
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
+                drawFixation(cfg);
 
                 % ISI
                 [~, ~, ISIend] = Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);

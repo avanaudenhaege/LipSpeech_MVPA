@@ -14,9 +14,9 @@ function [cfg] = setParameters()
 
     %% Debug mode settings
 
-    cfg.debug.do = false; % To test the script out of the scanner, skip PTB sync
+    cfg.debug.do = true; % To test the script out of the scanner, skip PTB sync
     cfg.debug.smallWin = false; % To test on a part of the screen, change to 1
-    cfg.debug.transpWin = false; % To test with trasparent full size screen
+    cfg.debug.transpWin = true; % To test with trasparent full size screen
 
     cfg.verbose = 1;
 
@@ -82,7 +82,7 @@ function [cfg] = setParameters()
 
     if cfg.debug.do
         cfg.actor = cfg.actor(1:3);
-%         cfg.syllable = cfg.syllable(1:2);
+         cfg.syllable = cfg.syllable(1:2);
     end
 
     % variables necessary during randomization
