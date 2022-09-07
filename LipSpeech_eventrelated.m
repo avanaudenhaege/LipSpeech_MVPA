@@ -99,6 +99,11 @@ for t = 1:length(stimNames)
     [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
                                                                        [myExpTrials(t).stimulusName '.wav']));
     myExpTrials(t).audioData = myExpTrials(t).audy';
+    myExpTrials(t).nrchannels = size(myExpTrials(t).audioData, 1);
+    if myExpTrials(t).nrchannels < 2
+        myExpTrials(t).audioData = [myExpTrials(t).audioData; myExpTrials(t).audioData];
+        myExpTrials(t).nrchannels = 2;
+    end
     myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
 end
 
