@@ -55,15 +55,12 @@ function [cfg] = setParameters()
     % Number of seconds after the end all the stimuli before ending the run
     cfg.timing.endDelay = 2;
 
-    % stimXsize = 1920; % never used
-    % stimYsize = 1080; % never used
-
+    % video paramaters
     cfg.video.ext = '.jpg';
-
-    cfg.vidDuration = 2;
-    cfg.videoFrameRate = 25;
-    % total num of frames in a whole video
-    cfg.nbFrames = cfg.videoFrameRate * cfg.vidDuration;
+    cfg.video.apparentHeight = 1; % degrees visual angle
+    cfg.video.duration = 2; % seconds
+    cfg.video.frameRate = 25;
+    cfg.video.nbFrames = cfg.video.frameRate * cfg.video.duration;
 
     cfg.subject.ask = {'ses'};
 
