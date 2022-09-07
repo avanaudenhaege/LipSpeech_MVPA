@@ -6,9 +6,20 @@ programmer: Federica Falagiarda October 2019
 
 ADAPTED BY ALICE VAN AUDENHAEGE - August 2022
 
+## Install
+
+There are some git submodules needed to run the code. 
+To clone the repository and all submodules, use the following command:
+
+```
+git clone --recursive https://github.com/avanaudenhaege/LipSpeech_MVPA.git
+```
+
+## Description
+
 Once fully run, this script has given an events.tsv and events.json output file.
 
-## BLOCK DESCRIPTION
+### Blocks
 
 There are 9 possible syllables portrayed by 3 speakers
 
@@ -38,7 +49,7 @@ Time calculation for each run :
 - trial duration = 2s stim + 3s ISI = 5s
 - block/run duration = (27 x 5s) + (2 or 3 targets x 5s) = 145 or 150s
 
-## REPETITIONS
+### Repetitions
 
 A repetition consists of 2 runs, 1 of each modality (visual and auditory).
 
@@ -46,7 +57,7 @@ The number of repetition desired (`nReps`) is asked at the beginning of the
 script (ideally 18-20 reps in total, over 2 sessions).
 
 
-## STIMUILI
+### Stimuli
 
 To be used with a folder named `stimuli` containing the following files stored
 on OSF:
