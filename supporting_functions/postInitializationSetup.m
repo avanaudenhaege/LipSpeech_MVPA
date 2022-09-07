@@ -11,7 +11,6 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
     cfg.timing.ISI = 3 - cfg.screen.ifi / 6;
     cfg.timing.frameDuration = 1 / cfg.video.frameRate - cfg.screen.ifi / 6;
 
-
     talkToMe(cfg, '\nTurning images into textures.\n');
     stimNames = fieldnames(myVidStructArray);
     for iStim = 1:numel(stimNames)
@@ -41,6 +40,6 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
     cfg.screen.stimulusRect  = [cfg.screen.center(1) - cfg.video.apparentWidthPix / 2, ...
                                 cfg.screen.center(2) - cfg.video.apparentHeightPix / 2, ...
                                 cfg.screen.center(1) + cfg.video.apparentWidthPix / 2, ...
-                                cfg.screen.center(2) + cfg.video.apparentHeightPix / 2];    
+                                cfg.screen.center(2) + cfg.video.apparentHeightPix / 2];
 
 end

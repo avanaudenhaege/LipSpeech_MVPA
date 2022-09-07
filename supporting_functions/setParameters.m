@@ -29,7 +29,7 @@ function [cfg] = setParameters()
     %% Auditory Stimulation
     cfg.audio.do = true;
     cfg.audio.channels = 2;
-     cfg.audio.fs = 44100;
+    cfg.audio.fs = 44100;
     if ispc
         cfg.audio.fs = 48000;
     end
@@ -136,7 +136,7 @@ function cfg = setMonitor(cfg)
     cfg.color.red = [255 0 0];
     cfg.color.grey = mean([cfg.color.black; cfg.color.white]);
     cfg.color.background = cfg.color.black;
-    
+
     cfg.text.color = cfg.color.white;
     cfg.text.size = 48;
 
