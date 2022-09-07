@@ -17,7 +17,7 @@ function [structureName] = loadImages(cfg, actor, syllable)
 
     allImages = bids.internal.file_utils('FPList', cfg.dir.stimuli, ['^' actor syllable '.*' cfg.video.ext '$']);
 
-    for i = 1:cfg.nbFrames
+    for i = 1:cfg.video.nbFrames
         thisImage = deblank(allImages(i, :));
         structureName(i).actor = actor;
         structureName(i).syllable = syllable;

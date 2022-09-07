@@ -252,7 +252,7 @@ try
                         thisEvent.stim_file = [thisEvent.stim_file '*' cfg.video.ext];
 
                         % frames presentation loop
-                        for f = 1:cfg.nbFrames
+                        for f = 1:cfg.video.nbFrames
 
                             Screen('DrawTexture', cfg.screen.win, thisEvent.visualData(f).imageTexture);
                             vbl = Screen('Flip', cfg.screen.win, vbl + cfg.timing.frameDuration);
