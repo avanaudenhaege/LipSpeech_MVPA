@@ -83,8 +83,8 @@ function [cfg] = setParameters()
     cfg.syllable = {'pa', 'pi', 'pe', 'fa', 'fi', 'fe', 'la', 'li', 'le'};
 
     if cfg.debug.do
-        cfg.actor = cfg.actor(1:3);
-         cfg.syllable = cfg.syllable(1:2);
+        cfg.actor = cfg.actor(1:2);
+        cfg.syllable = cfg.syllable(1:2);
     end
 
     % variables necessary during randomization

@@ -208,8 +208,6 @@ try
 
             for iTrial = 1:(cfg.design.nbTrials + r)
 
-                talkToMe(cfg, sprintf('\n - Running trial %.0f \n', iTrial));
-
                 %  Check for experiment abortion from operator
                 checkAbort(cfg, cfg.keyboard.keyboard);
 
@@ -300,11 +298,7 @@ try
                 % clear last frame
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
-
-                % ISI
-                [~, ~, ISIend] = Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
-                % fb about duration in cw
-                talkToMe(cfg, sprintf('\nTiming ISI - the duration was: %f sec\n', ISIend - offset));
+                Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
 
                 thisEvent.duration = offset - onset;
                 thisEvent.onset = onset - cfg.experimentStart;
@@ -331,6 +325,13 @@ try
                     saveEventsFile('save', cfg, responseEvents);
                 end
 
+                % ISI
+                for i = 1:(cfg.timing.ISI / cfg.screen.ifi)
+                    Screen('FillRect', cfg.screen.win, cfg.color.background);
+                    drawFixation(cfg);
+                    Screen('Flip', cfg.screen.win, offset + cfg.screen.ifi / 2);
+                end
+
             end
 
             % End of the run
@@ -342,13 +343,14 @@ try
             saveEventsFile('close', cfg, logFile);
             createJson(cfg, cfg);
 
+            eventsFile = fullfile(cfg.dir.outputSubject, ...
+                                  cfg.fileName.modality, ...
+                                  logFile.filename);
+            displayIsiStats(cfg, eventsFile);
+
             blockEnd = GetSecs;
             blockDur = blockEnd - blockStart;
             talkToMe(sprintf('\nTotal block duration: %f\n', blockDur));
-            
-%             FUNCTION CALCULATEMEANDUR ERROR !!
-%             meanDur = CalculateMeanDur(logFile.filename);
-%             talkToMe(sprintf('\nMean duration of stimuli in this block: %f\n', meanDur));
 
         end
 
