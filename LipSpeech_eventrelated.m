@@ -78,7 +78,7 @@ talkToMe(cfg, '\nLoad stimuli:');
 % to keep track of stimuli
 myExpTrials = struct;
 
-tic
+tic;
 
 talkToMe(cfg, '\n visual');
 stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
@@ -93,7 +93,7 @@ else
 end
 stimNames = fieldnames(myVidStructArray);
 
-toc
+toc;
 
 talkToMe(cfg, '\n audio');
 for t = 1:length(stimNames)
@@ -190,7 +190,7 @@ try
             % Pseudorandomization made based on syllable vector
             [~, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
             for ind = 1:length(cfg.stimSyll)
-                pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind));
+                pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind)); %#ok<SAGROW>
             end
 
             pseudoRandExpTrialsBack = addNback(cfg, pseudorandExpTrials, backTrials, r);
@@ -241,7 +241,7 @@ try
                     Screen('Flip', cfg.screen.win);
                     WaitSecs(0.5);
                 end
-                
+
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
                 [~, ~, lastEventTime] = Screen('Flip', cfg.screen.win);
