@@ -78,7 +78,7 @@ talkToMe(cfg, '\nLoad stimuli:');
 % to keep track of stimuli
 myExpTrials = struct;
 
-tic
+tic;
 
 talkToMe(cfg, '\n visual');
 stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
@@ -93,7 +93,7 @@ else
 end
 stimNames = fieldnames(myVidStructArray);
 
-toc
+toc;
 
 talkToMe(cfg, '\n audio');
 for t = 1:length(stimNames)
@@ -190,7 +190,7 @@ try
             % Pseudorandomization made based on syllable vector
             [~, pseudoSyllIndex] = pseudorandptb(cfg.stimSyll);
             for ind = 1:length(cfg.stimSyll)
-                pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind));
+                pseudorandExpTrials(ind) = myExpTrials(pseudoSyllIndex(ind)); %#ok<SAGROW>
             end
 
             pseudoRandExpTrialsBack = addNback(cfg, pseudorandExpTrials, backTrials, r);
@@ -207,8 +207,6 @@ try
             getResponse('start', cfg.keyboard.responseBox);
 
             for iTrial = 1:(cfg.design.nbTrials + r)
-
-                talkToMe(cfg, sprintf('\n - Running trial %.0f \n', iTrial));
 
                 %  Check for experiment abortion from operator
                 checkAbort(cfg, cfg.keyboard.keyboard);
@@ -243,7 +241,7 @@ try
                     Screen('Flip', cfg.screen.win);
                     WaitSecs(0.5);
                 end
-                
+
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
                 [~, ~, lastEventTime] = Screen('Flip', cfg.screen.win);
@@ -300,11 +298,7 @@ try
                 % clear last frame
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
-
-                % ISI
-                [~, ~, ISIend] = Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
-                % fb about duration in cw
-                talkToMe(cfg, sprintf('\nTiming ISI - the duration was: %f sec\n', ISIend - offset));
+                Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
 
                 thisEvent.duration = offset - onset;
                 thisEvent.onset = onset - cfg.experimentStart;
@@ -331,6 +325,13 @@ try
                     saveEventsFile('save', cfg, responseEvents);
                 end
 
+                % ISI
+                for i = 1:(cfg.timing.ISI / cfg.screen.ifi)
+                    Screen('FillRect', cfg.screen.win, cfg.color.background);
+                    drawFixation(cfg);
+                    Screen('Flip', cfg.screen.win, offset + cfg.screen.ifi / 2);
+                end
+
             end
 
             % End of the run
@@ -342,13 +343,14 @@ try
             saveEventsFile('close', cfg, logFile);
             createJson(cfg, cfg);
 
+            eventsFile = fullfile(cfg.dir.outputSubject, ...
+                                  cfg.fileName.modality, ...
+                                  logFile.filename);
+            displayIsiStats(cfg, eventsFile);
+
             blockEnd = GetSecs;
             blockDur = blockEnd - blockStart;
             talkToMe(sprintf('\nTotal block duration: %f\n', blockDur));
-            
-%             FUNCTION CALCULATEMEANDUR ERROR !!
-%             meanDur = CalculateMeanDur(logFile.filename);
-%             talkToMe(sprintf('\nMean duration of stimuli in this block: %f\n', meanDur));
 
         end
 

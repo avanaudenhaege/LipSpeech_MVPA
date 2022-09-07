@@ -13,8 +13,8 @@ tmp.zip
 *.zip
 
 # data
-*.tsv
-*.json
+data/source
+
 
 ## MATLAB / OCTAVE gitignore template
 
