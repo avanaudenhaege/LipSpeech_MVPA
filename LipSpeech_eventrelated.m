@@ -294,7 +294,7 @@ try
                 % clear last frame
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
-                vbl = Screen('Flip', cfg.screen.win, offset);
+                Screen('Flip', cfg.screen.win, offset);
 
                 thisEvent.duration = offset - onset;
                 thisEvent.onset = onset - cfg.experimentStart;
@@ -322,11 +322,7 @@ try
                 end
 
                 % ISI
-                for i = 1:ceil(cfg.timing.ISI / cfg.screen.ifi)
-                    Screen('FillRect', cfg.screen.win, cfg.color.background);
-                    drawFixation(cfg);
-                    vbl = Screen('Flip', cfg.screen.win, vbl + cfg.screen.ifi / 2);
-                end
+                WaitSecs(cfg.timing.ISI);
 
             end
 
