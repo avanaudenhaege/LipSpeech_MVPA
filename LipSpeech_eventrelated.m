@@ -83,9 +83,14 @@ tic
 talkToMe(cfg, '\n visual');
 stimuliMatFile = fullfile(cfg.dir.root, 'stimuli', 'stimuli.mat');
 if ~exist(stimuliMatFile, 'file')
-    saveStimuliAsMat();
+    myVidStructArray = saveStimuliAsMat();
+else
+    try
+        load(stimuliMatFile, 'myVidStructArray');
+    catch
+        myVidStructArray = saveStimuliAsMat();
+    end
 end
-load(stimuliMatFile, 'myVidStructArray');
 stimNames = fieldnames(myVidStructArray);
 
 toc
