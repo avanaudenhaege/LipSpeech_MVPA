@@ -1,9 +1,8 @@
-% (C) Copyright 2020 CPP visual motion localizer developpers
-
 function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStructArray)
-
-    % generic function to finalize some set up after psychtoolbox has been
-    % initialized
+    % generic function to finalize some set up after psychtoolbox has been initialized
+    %
+    %
+    % (C) Copyright 2022 Remi Gau
 
     % timings in my trial sequence
     % (substract interFrameInterval/3 to make sure that flipping is done
@@ -12,7 +11,9 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
     cfg.timing.frameDuration = 1 / cfg.video.frameRate - cfg.screen.ifi / 6;
 
     talkToMe(cfg, '\nTurning images into textures.\n');
+
     stimNames = fieldnames(myVidStructArray);
+
     for iStim = 1:numel(stimNames)
         thisStime = stimNames{iStim};
         for iFrame = 1:numel(myVidStructArray.(thisStime))
