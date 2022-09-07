@@ -101,9 +101,9 @@ for t = 1:length(stimNames)
     myExpTrials(t).visualStimuli = myVidStructArray.(stimNames{t});
     myExpTrials(t).syllable = myVidStructArray.(stimNames{t})(1).syllable;
     myExpTrials(t).actor = myVidStructArray.(stimNames{t})(1).actor;
-    [myExpTrials(t).audy, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
-                                                                       [myExpTrials(t).stimulusName '.wav']));
-    myExpTrials(t).audioData = myExpTrials(t).audy';
+    [myExpTrials(t).audioData, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
+                                                                            [myExpTrials(t).stimulusName '.wav']));
+    myExpTrials(t).audioData = myExpTrials(t).audioData';
     myExpTrials(t).nrchannels = size(myExpTrials(t).audioData, 1);
     if myExpTrials(t).nrchannels < 2
         myExpTrials(t).audioData = [myExpTrials(t).audioData; myExpTrials(t).audioData];
