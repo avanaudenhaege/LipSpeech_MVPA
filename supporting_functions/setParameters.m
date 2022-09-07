@@ -58,6 +58,8 @@ function [cfg] = setParameters()
     % stimXsize = 1920; % never used
     % stimYsize = 1080; % never used
 
+    cfg.video.ext = '.jpg';
+
     cfg.vidDuration = 2;
     cfg.videoFrameRate = 25;
     % total num of frames in a whole video

@@ -245,7 +245,7 @@ try
                 switch modality
                     case 'vis'
 
-                        thisEvent.stim_file = [thisEvent.stim_file '*.png'];
+                        thisEvent.stim_file = [thisEvent.stim_file '*' cfg.video.ext];
 
                         % frames presentation loop
                         for f = 1:cfg.nbFrames
