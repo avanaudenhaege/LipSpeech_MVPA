@@ -338,6 +338,10 @@ try
             blockEnd = GetSecs;
             blockDur = blockEnd - blockStart;
             talkToMe(sprintf('\nTotal block duration: %f\n', blockDur));
+            
+%             FUNCTION CALCULATEMEANDUR ERROR !!
+%             meanDur = CalculateMeanDur(logFile.filename);
+%             talkToMe(sprintf('\nMean duration of stimuli in this block: %f\n', meanDur));
 
         end
 
