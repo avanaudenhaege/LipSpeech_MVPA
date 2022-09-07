@@ -43,26 +43,4 @@ function [cfg, myExpTrials] = postInitializationSetup(cfg, myExpTrials, myVidStr
                                 cfg.screen.center(1) + cfg.video.apparentWidthPix / 2, ...
                                 cfg.screen.center(2) + cfg.video.apparentHeightPix / 2];
 
-    %% resample sounds if necessary
-    if exist('resample') %#ok<EXIST>
-
-        for t = 1:length(stimNames)
-
-            thisStime = stimNames{iStim};
-
-            if cfg.audio.fs ~= myExpTrials(t).audfreq
-
-                talkToMe(sprintf('Resampling %s sound from %i Hz to %i Hz... ', ...
-                                 thisStime, ...
-                                 myExpTrials(t).audfreq, ...
-                                 cfg.audio.fs));
-
-                myExpTrials(t).audioData = resample(myExpTrials(t).audioData, ...
-                                                    cfg.audio.fs, ...
-                                                    myExpTrials(t).audfreq);
-            end
-        end
-
-    end
-
 end

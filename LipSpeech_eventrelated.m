@@ -96,11 +96,14 @@ stimNames = fieldnames(myVidStructArray);
 toc;
 
 talkToMe(cfg, '\n audio');
+
 for t = 1:length(stimNames)
+
     myExpTrials(t).stimulusName = stimNames{t};
     myExpTrials(t).visualStimuli = myVidStructArray.(stimNames{t});
     myExpTrials(t).syllable = myVidStructArray.(stimNames{t})(1).syllable;
     myExpTrials(t).actor = myVidStructArray.(stimNames{t})(1).actor;
+
     [myExpTrials(t).audioData, myExpTrials(t).audfreq] = audioread(fullfile(cfg.dir.stimuli, ...
                                                                             [myExpTrials(t).stimulusName '.wav']));
     myExpTrials(t).audioData = myExpTrials(t).audioData';
@@ -110,6 +113,19 @@ for t = 1:length(stimNames)
         myExpTrials(t).nrchannels = 2;
     end
     myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
+
+    if cfg.audio.fs ~= myExpTrials(t).audfreq
+
+        talkToMe(sprintf('Resampling %s sound from %i Hz to %i Hz... ', ...
+                         stimNames{t}, ...
+                         myExpTrials(t).audfreq, ...
+                         cfg.audio.fs));
+
+        myExpTrials(t).audioData = resample(myExpTrials(t).audioData, ...
+                                            cfg.audio.fs, ...
+                                            myExpTrials(t).audfreq);
+    end
+
 end
 
 talkToMe(cfg, '\n');
