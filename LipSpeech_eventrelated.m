@@ -244,7 +244,7 @@ try
 
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
-                [~, ~, lastEventTime] = Screen('Flip', cfg.screen.win);
+                vbl = Screen('Flip', cfg.screen.win);
 
                 switch modality
                     case 'vis'
@@ -254,14 +254,8 @@ try
                         % frames presentation loop
                         for f = 1:cfg.video.nbFrames
 
-                            Screen('DrawTexture', ...
-                                   cfg.screen.win, ...
-                                   thisEvent.visualData(f).imageTexture, 
-                                   [], ...
-                                   cfg.screen.stimulusRect);
-                            [vbl, ~, lastEventTime, missed] = Screen('Flip', ...
-                                                                     cfg.screen.win, ...
-                                                                     lastEventTime + cfg.timing.frameDuration);
+                            Screen('DrawTexture', cfg.screen.win, thisEvent.visualData(f).imageTexture);
+                            vbl = Screen('Flip', cfg.screen.win, vbl + cfg.timing.frameDuration);
 
                             % time stamp to measure stimulus duration on screen
                             if f == 1
@@ -300,7 +294,7 @@ try
                 % clear last frame
                 Screen('FillRect', cfg.screen.win, cfg.color.background);
                 drawFixation(cfg);
-                Screen('Flip', cfg.screen.win, offset + cfg.timing.ISI);
+                Screen('Flip', cfg.screen.win, offset);
 
                 thisEvent.duration = offset - onset;
                 thisEvent.onset = onset - cfg.experimentStart;
@@ -328,11 +322,7 @@ try
                 end
 
                 % ISI
-                for i = 1:(cfg.timing.ISI / cfg.screen.ifi)
-                    Screen('FillRect', cfg.screen.win, cfg.color.background);
-                    drawFixation(cfg);
-                    Screen('Flip', cfg.screen.win, offset + cfg.screen.ifi / 2);
-                end
+                WaitSecs(cfg.timing.ISI);
 
             end
 
