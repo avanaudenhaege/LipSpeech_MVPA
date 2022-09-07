@@ -30,7 +30,7 @@ function [cfg] = setParameters()
     cfg.audio.do = true;
     cfg.audio.channels = 2;
      cfg.audio.fs = 44100;
-    if IsWin
+    if ispc
         cfg.audio.fs = 48000;
     end
 
