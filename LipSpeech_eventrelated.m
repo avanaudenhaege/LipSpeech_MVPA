@@ -113,19 +113,6 @@ for t = 1:length(stimNames)
         myExpTrials(t).nrchannels = 2;
     end
     myExpTrials(t).trialtype = 0; % will be 1 if trial is a target
-
-    if cfg.audio.fs ~= myExpTrials(t).audfreq
-
-        talkToMe(sprintf('Resampling %s sound from %i Hz to %i Hz... ', ...
-                         stimNames{t}, ...
-                         myExpTrials(t).audfreq, ...
-                         cfg.audio.fs));
-
-        myExpTrials(t).audioData = resample(myExpTrials(t).audioData, ...
-                                            cfg.audio.fs, ...
-                                            myExpTrials(t).audfreq);
-    end
-
 end
 
 talkToMe(cfg, '\n');

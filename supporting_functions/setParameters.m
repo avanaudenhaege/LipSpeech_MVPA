@@ -20,19 +20,18 @@ function [cfg] = setParameters()
 
     cfg.verbose = 1;
 
-    cfg.skipSyncTests = 1;
+    cfg.skipSyncTests = 0;
 
     %% Engine parameters
     cfg.testingDevice = 'mri';
     cfg.eyeTracker.do = false;
 
     %% Auditory Stimulation
+    cfg.audio.devIdx = 2;
     cfg.audio.do = true;
     cfg.audio.channels = 2;
     cfg.audio.fs = 44100;
-    if ispc
-        cfg.audio.fs = 48000;
-    end
+
 
     %% Task(s)
 
