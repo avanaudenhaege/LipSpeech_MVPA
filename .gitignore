@@ -12,6 +12,8 @@ tmp.zip
 *.mat
 *.zip
 
+tmp
+
 # data
 data/source
 
