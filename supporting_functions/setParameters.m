@@ -27,7 +27,9 @@ function [cfg] = setParameters()
     cfg.eyeTracker.do = false;
 
     %% Auditory Stimulation
-    cfg.audio.devIdx = 2;
+    if IsWin
+        cfg.audio.devIdx = 2;
+    end
     cfg.audio.do = true;
     cfg.audio.channels = 2;
     cfg.audio.fs = 44100;
