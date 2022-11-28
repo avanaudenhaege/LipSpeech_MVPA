@@ -220,7 +220,7 @@ try
                 thisEvent.block = block;
                 thisEvent.repetition = rep;
                 thisEvent.target = pseudoRandExpTrialsBack(iTrial).trialtype;
-                thisEvent.stim_file = pseudoRandExpTrialsBack(iTrial).stimulusName;
+                thisEvent.stim_name = pseudoRandExpTrialsBack(iTrial).stimulusName;
                 thisEvent.trial_type = thisEvent.stim_file;
                 thisEvent.actor = pseudoRandExpTrialsBack(iTrial).actor;
                 thisEvent.consonant = pseudoRandExpTrialsBack(iTrial).syllable(1);
