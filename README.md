@@ -1,6 +1,6 @@
 # LipSpeech_MVPA
 
-Stimulation for functional runs of fMRI design
+Stimulation for functional runs of fMRI event-related design
 
 Initial script Federica Falagiarda - adapted by Alice Van Audenhaege and Remi Gau
 October 2022
