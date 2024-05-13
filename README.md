@@ -2,7 +2,7 @@
 
 Stimulation for functional runs of fMRI design
 
-Initial script Federica - adapted by Alice Van Audenhaege and Remi Gau
+Initial script Federica Falagiarda - adapted by Alice Van Audenhaege and Remi Gau
 October 2022
 
 ## Install
