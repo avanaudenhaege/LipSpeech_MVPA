@@ -2,9 +2,8 @@
 
 Stimulation for functional runs of fMRI design
 
-programmer: Federica Falagiarda October 2019
-
-ADAPTED BY ALICE VAN AUDENHAEGE - August 2022
+Initial script Federica - adapted by Alice Van Audenhaege and Remi Gau
+October 2022
 
 ## Install
 
