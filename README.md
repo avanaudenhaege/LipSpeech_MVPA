@@ -23,8 +23,7 @@ Once fully run, this script has given an events.tsv and events.json output file.
 There are 9 possible syllables portrayed by 3 speakers
 
 - SYL: F P L \* A I E
-- Speakers : GH (=S2), JB (=S3), AV (=S1)
-
+- Speakers : S1, S2, S3
 - Number of stimuli per run = 27 stims
 
 Possible modality for each run:
