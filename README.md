@@ -58,9 +58,9 @@ script (ideally 18-20 reps in total, over 2 sessions).
 ### Stimuli
 
 To be used with a folder named `stimuli` containing the following files stored
-on OSF:
+on OSF in `PhonologicalDecoding-MVPA_stimuli.zip`
 
-https://osf.io/2xtsn/?view_only=e21d5b119a344453bd18748c0145cf26
+https://osf.io/2xtsn/?view_only=22f09bb4dc5f4a11823103141ca2f735
 
 To download them just type (for MacOS and linux):
 
